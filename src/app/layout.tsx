@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   keywords: ["Lucas Leria", "Leria","Portfolio", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
   authors: [{ name: "Lucas Leria" }],
   openGraph: {
-    title: "Lucas Leria Code Scaffold",
+    title: "Lucas Leria Portfolio",
     description: "AI-powered development with modern React stack",
     url: "",
     siteName: "Lucas_Leria_Portfolio",
