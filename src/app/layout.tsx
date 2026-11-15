@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { siteOrigin } from '@/lib/site-metadata';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,14 +15,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: siteOrigin(),
   title: "Lucas Leria Portfolio",
-  description: "Modern Next.js Lucas Leria Portfolio. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
+  description: "Projects and documented work in web development, automation and databases.",
   keywords: ["Lucas Leria", "Leria","Portfolio", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
   authors: [{ name: "Lucas Leria" }],
   openGraph: {
     title: "Lucas Leria Portfolio",
-    description: "AI-powered development with modern React stack",
-    url: "",
+    description: "Web development, automation and databases",
     siteName: "Lucas_Leria_Portfolio",
     type: "website",
   },

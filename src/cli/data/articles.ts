@@ -12,7 +12,7 @@ export interface Article {
     {
       title: "Data Science: How Companies Transform Data into Competitive Advantage — Illustrated",
       description: "An comprehensive exploration of how companies leverage data science to gain competitive advantages, featuring real-world examples and practical insights.",
-      url: "https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7361434341228392448", // Precisa pegar a url embbedada
+      url: "https://www.linkedin.com/feed/update/urn:li:ugcPost:7361434341228392448/",
       platform: "LinkedIn",
       year: 2025,
       category: "Data Science",

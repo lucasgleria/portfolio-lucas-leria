@@ -19,7 +19,7 @@ export const help = (context: CommandContext) => {
   languages      - Language proficiency
   ls             - List portfolio sections
   otherProjects - Architecture & Systems projects only
-  production     - View production projects (Live Demos!)
+  production     - Selected projects, products and technical cases
   projects       - See projects portfolio
   resume         - View Lucas's full resume in browser
   skills         - View technical skills

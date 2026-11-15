@@ -1,4 +1,5 @@
 import { CommandContext } from "./types"
+import { getCatalogEntries } from '../data/project-catalog'
 
 export const ls = (context: CommandContext) => {
     return `Portfolio Contents:
@@ -12,8 +13,8 @@ export const ls = (context: CommandContext) => {
   languages.txt      - Language proficiency
   ler.ai             - AI Assistant
   lerchat            - Ler Chat desktop application
-  production         - Production projects (Live Demos!)
-  projects/          - Projects portfolio (19 projects)
+  production         - Selected projects, products and technical cases
+  projects/          - Project catalog (${getCatalogEntries(context.language).length} entries)
   resume             - Full resume browser viewer
   stats.txt          - Project statistics
   skills.txt         - Technical skills by category

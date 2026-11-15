@@ -4,5 +4,5 @@ export const articles = (context: CommandContext) => {
     const { setShowArticlesModal } = context
 
     setShowArticlesModal(true)
-    return 'Opening articles viewer...'
+    return context.language === 'pt-BR' ? 'Abrindo artigos...' : 'Opening articles...'
 }

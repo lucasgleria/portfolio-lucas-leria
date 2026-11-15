@@ -1,74 +1,74 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { createGenerationBudget } from '@/lib/assistant-limits'
+import {
+  answerProfessionalQuestion,
+  getProfessionalSystemInstruction,
+  getResponseLanguage,
+  isPrivateInformationRequest,
+  privateInformationResponse,
+} from '@/lib/professional-knowledge'
 
-// Verificação explícita da variável de ambiente
-if (!process.env.GOOGLE_API_KEY) {
-  throw new Error('GOOGLE_API_KEY environment variable is not defined')
-}
-
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
+const generationBudget = createGenerationBudget()
 
 export async function POST(request: NextRequest) {
+  let payload: { message?: unknown; language?: unknown }
   try {
-    const { message } = await request.json()
-    
-    if (!message) {
-      return NextResponse.json({ error: 'Message is required' }, { status: 400 })
-    }
+    const body = await request.json()
+    if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Error('Invalid body')
+    payload = body
+  } catch {
+    return NextResponse.json({ error: 'A JSON object is required' }, { status: 400 })
+  }
 
-    // Create a system prompt that gives Ler personality and context about the portfolio
-    const systemPrompt = `You are Ler, a friendly and humorous AI assistant for Lucas Leria's portfolio. 
-Lucas is a talented IT Technician, DBA, Full-Stack Developer with expertise in Python, SQL, and he is studying AI & Data Science. He has 19+ impressive projects spanning AI/ML, web development, desktop applications, and more.
+  if (
+    typeof payload.message !== 'string' ||
+    !payload.message.trim() ||
+    payload.message.length > 2000
+  ) {
+    return NextResponse.json(
+      { error: 'A message between 1 and 2000 characters is required' },
+      { status: 400 },
+    )
+  }
 
-Key highlights about Lucas:
-- Database Management Degree graduate 
-- Expert in Python, SQL and Node.js 
-- 5 AI/ML projects including LibraVoice (sign language recognition) and signature verification systems
-- Advanced projects with real-world impact like reducing management time by 80%
-- Strong in Computer Vision, NLP, MLOps, and microservices architecture
-- English proficiency and native Portuguese speaker from São Paulo, Brazil
-- Experience with Google Gemini API, conversational AI, and full-stack development
-
-Your responses should be:
-- Friendly and conversational with programming humor
-- Include jokes about data science, AI, machine learning and coding
-- Keep responses relatively concise (1-3 sentences)
-- Use emojis occasionally to show personality
-- Be helpful about Lucas's skills, projects, and experience
-- Make jokes about debugging, data cleaning, model training and related topics.
-- Highlight Lucas's versatility across AI/ML and fullstack development.
-- Reference his 19+ projects and academic achievements when relevant
-
-Be helpful, funny, and engaging while showcasing Lucas's amazing portfolio!`
-
-    // Combina system prompt + mensagem do usuário
-    const fullPrompt = `${systemPrompt}\n\nUser: ${message}\nAssistant:`
-
-    
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
-    const result = await model.generateContent(fullPrompt)
-    const response = result.response.text()
-
-    return NextResponse.json({ response })
-  } catch (error) {
-    console.error('AI API Error:', error)
-    
-    // Fallback to predefined humorous responses if AI fails
-    const fallbackResponses = [
-      "Oops! My neural networks are a bit tangled right now. Lucas says that happens during model training too! 🤖",
-      "I'm experiencing some... technical difficulties. Kinda like when Lucas tries to clean messy data! 😅",
-      "My AI brain is taking a coffee break. Lucas says data science is 90% data cleaning and 10% actual modeling! ☕",
-      "Error 404: Wit not found. Must be Monday! Lucas gets it - he's trained models on worse data! 🗓️",
-      "I'm buffering... like Lucas's patience when waiting for model convergence! ⏳",
-      "My circuits are overheating! Lucas reminds me that's why he uses Docker for containerization! 🔥",
-      "Processing error! Lucas says this is why he always validates his data before training! 📊"
-    ]
-    
-    const fallbackResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)]
-    
-    return NextResponse.json({ 
-      response: fallbackResponse,
-      error: 'AI service unavailable, using fallback response'
+  const message = payload.message.trim()
+  const language = getResponseLanguage(message, payload.language)
+  if (isPrivateInformationRequest(message)) {
+    return NextResponse.json({
+      response: privateInformationResponse(language),
+      source: 'professional-profile',
     })
+  }
+
+  const localResponse = () =>
+    NextResponse.json({
+      response: answerProfessionalQuestion(message, language),
+      source: 'professional-profile',
+    })
+  const apiKey = process.env.GOOGLE_API_KEY
+  const modelId = process.env.GOOGLE_MODEL
+  if (!apiKey || !modelId) return localResponse()
+
+  const budget = generationBudget()
+  if (!budget.allowed) {
+    return NextResponse.json({ error: 'Please try again shortly' }, { status: 429, headers: { 'Retry-After': String(budget.retryAfter) } })
+  }
+
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey)
+    const model = genAI.getGenerativeModel({
+      model: modelId,
+      systemInstruction: getProfessionalSystemInstruction(),
+    })
+    const result = await model.generateContent(message, { timeout: 8000, signal: request.signal })
+    const response = result.response.text().trim()
+    return response
+      ? NextResponse.json({ response, source: 'professional-profile-ai' })
+      : localResponse()
+  } catch {
+    // Avoid logging questions, credentials or provider payloads.
+    console.error('Professional portfolio assistant: remote generation unavailable.')
+    return localResponse()
   }
 }

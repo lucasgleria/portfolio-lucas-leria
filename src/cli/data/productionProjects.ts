@@ -1,24 +1,115 @@
+export type ProjectCategory = 'web' | 'ai' | 'games'
+
 export interface ProductionProject {
+    category: ProjectCategory
     name: string
     seo: string
     description: string
     year: number
     role: string
-    status: string
+    status: 'In Progress' | 'Concluded' | 'Published' | 'Documented use'
     team: string[]
     technologies: string[]
     features: string[]
     highlights: string[]
     challenges: string[]
     results: string[]
-    link: string
-    demo: string
-    documentation: string
+    publicationNote?: string
+    link?: string
+    demo?: string
+    documentation?: string
   }
   
   export const productionProjects: ProductionProject[] = [
     {
+      name: 'vault-template',
+      category: 'ai',
+      seo: 'vault-template-reusable-agent-guided-knowledge-system',
+      description: 'Reusable, agent-guided vault for organizing projects, tasks and knowledge. The public repository is the product: copy or clone it to a chosen environment and configure it with an AI agent that can access its files.',
+      year: 2026,
+      role: 'Author and Maintainer',
+      status: 'Published',
+      team: ['Lucas Leria'],
+      technologies: ['Markdown', 'JSON Schema', 'Python', 'Git'],
+      features: [
+        'Progressive conversational setup with saved configuration state',
+        'Shared project instructions for Codex, Cursor, Claude Code, Gemini CLI and GitHub Copilot',
+        'Reusable templates for projects, tasks, knowledge and routines',
+        'Continuity files for resuming work across sessions and agents',
+        'Versioned configuration, JSON schemas and Python structural validators',
+      ],
+      highlights: [
+        'The repository itself is the distributable product',
+        'Open file formats and an MIT license support copying and adaptation',
+      ],
+      challenges: ['Preserving continuity across agents', 'Adapting organization without changing shared data contracts'],
+      results: [
+        'Public MIT-licensed repository published in November 2026',
+        'Reusable configuration and instructions available for environments with compatible file-access tools',
+      ],
+      publicationNote: 'Published as a reusable repository under MIT. Operation depends on the chosen agent’s file access and support for project instructions.',
+      link: 'https://github.com/lucasgleria/vault-template',
+      documentation: 'https://github.com/lucasgleria/vault-template/blob/main/README.md',
+    },
+    {
+      name: 'Treino IA',
+      category: 'ai',
+      seo: 'treino-ia-offline-first-workout-planning-pwa',
+      description: 'Workout-planning PWA combining deterministic plans, session tracking and an AI Coach whose proposed changes require user approval. Offline storage and account synchronization support continuity across sessions.',
+      year: 2026,
+      role: 'Full-stack Developer',
+      status: 'Published',
+      team: ['Lucas Leria'],
+      technologies: ['React 19', 'TypeScript', 'Vite', 'Supabase', 'IndexedDB', 'Vercel'],
+      features: [
+        'Workout planning, versioned plans and session tracking',
+        'Offline persistence with IndexedDB',
+        'Account isolation and incremental synchronization with retry handling',
+        'AI Coach proposals that require explicit user acceptance',
+        'Calendar feed generated on the device after pending synchronization clears',
+      ],
+      highlights: [
+        'Offline-first architecture with local persistence and cloud reconciliation',
+        'Separation between deterministic planning and AI proposals',
+      ],
+      challenges: ['Preserving records during synchronization', 'Keeping AI changes under user control'],
+      results: [
+        'Published implementation documented in the October 2026 review',
+        'Planning, history and synchronization implemented; current production flows were not revalidated in this portfolio review',
+      ],
+      publicationNote: 'Technical case. The application repository is private; a public demonstration is not linked here.',
+    },
+    {
+      name: 'Classes Points',
+      category: 'web',
+      seo: 'classes-points-classroom-assessment-management',
+      description: 'Mobile-focused classroom management application for points, written and oral assessments, class records and PDF reports. The technical case covers implemented workflows and documented teaching use.',
+      year: 2026,
+      role: 'Full-stack Developer',
+      status: 'Documented use',
+      team: ['Lucas Leria'],
+      technologies: ['Node.js 24', 'Express 5', 'JavaScript', 'PostgreSQL', 'SQLite', 'Vercel'],
+      features: [
+        'Class management and individual or batch point recording',
+        'Written assessments and weighted oral assessments',
+        'Assessment history, reviews and PDF reports',
+        'Server-rendered HTML with JavaScript and CSS',
+        'PostgreSQL/Neon deployment support and SQLite for local development',
+      ],
+      highlights: [
+        'Workflows developed around teaching practice',
+        'Separate local and hosted database adapters',
+      ],
+      challenges: ['Preserving assessment history', 'Improving operation latency and PDF presentation'],
+      results: [
+        'Classroom use documented in October 2026',
+        'PDF presentation and performance improvements remain open; current production configuration was not revalidated',
+      ],
+      publicationNote: 'Technical case. The teacher panel and real classroom records are not part of a public demonstration.',
+    },
+    {
       name: "chat-lleria",
+      category: 'ai',
       seo: "chat-lleria-intelligent-chatbot-gemini-api-role-system",
       description: "AI-powered chatbot using Google Gemini 1.5 Flash API with a sophisticated role system for personalized resume interactions. Features 4 different user profiles (Recruiter, Developer, Client, Student) with customized responses.",
       year: 2025,
@@ -57,6 +148,7 @@ export interface ProductionProject {
     },
     {
       name: "Mystical Number Castle",
+      category: 'games',
       seo: "mystical-number-castle-interactive-guessing-game-vuejs",
       description: "An interactive web game where the player challenges a genie in a mystical castle, trying to guess the secret number. This project is a collaborative evolution of a classic C-based CLI game, bringing a modern and responsive graphical interface with new features.",
       year: 2025,
@@ -110,6 +202,7 @@ export interface ProductionProject {
     },
     {
       name: "The Forca",
+      category: 'games',
       seo: "the-forca-hangman-game-web-modern-fastapi-vanilla-javascript-tailwind-css",
       description: "A modern and interactive reimagining of the classic Hangman game, available to play in your browser. This collaborative project combines a Python (FastAPI) backend with a Vanilla JavaScript, Tailwind CSS, and SCSS frontend for a fluid and engaging experience.",
       year: 2025,
@@ -162,6 +255,7 @@ export interface ProductionProject {
     },
     {
       "name": "LerCode",
+      category: 'web',
       "seo": "simple-and-efficient-web-application-to-instantly-generate-QR-codes",
       "description": "A web application that provides a free and intuitive solution for generating QR codes instantly.",
       "year": 2025,
@@ -211,6 +305,7 @@ export interface ProductionProject {
     },
     {
       "name": "Portfolio Nathalye Vitoria",
+      category: 'web',
       "seo": "Nathalye-Vitorias-professional-portfolio",
       "description": "A modern and responsive web application built to professionally showcase projects, certifications, and technical skills.",
       "year": 2025,

@@ -1,250 +1,100 @@
-# 🚀 Lucas Leria Portfolio CLI
+# Portfólio de Lucas Leria
 
-**Interactive portfolio with terminal interface developed in Next.js and TypeScript**
+Portfólio em Next.js, React e TypeScript, com escolha de idioma (English / Português brasileiro) e duas interfaces: Visual e Terminal. A identidade escura com destaque verde é compartilhada entre os caminhos.
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.0.0-green.svg)]()
-[![Status](https://img.shields.io/badge/status-in%20production-green.svg)]()
-[![Deploy](https://img.shields.io/badge/deploy-active-green.svg)]()
+- [Plano de melhorias e situação das entregas](docs/plano-de-melhorias.md)
+- [Política da base profissional](docs/professional-data-policy.md)
+- [Revisão dos projetos para publicação](docs/recent-projects-publication-review.md)
 
-## 📌 Table of Contents
+## Executar localmente
 
-1. [About the Project](#-about-the-project)  
-2. [Objectives](#-objectives)  
-3. [Technologies](#-technologies)  
-4. [Features](#-features)  
-5. [Prerequisites](#️-prerequisites)  
-6. [Installation](#️-installation)  
-7. [How to Use](#-how-to-use)
-8. [Project Structure](#-project-structure)
-9. [Contributing](#-contributing)  
-10. [License](#-license)  
-11. [Contact](#-contact)  
-12. [Additional Resources](#-additional-resources)  
+Use Node.js 24, conforme `.nvmrc`, e npm. A instalação limpa precisa de acesso ao registro npm ou de um cache completo das dependências.
 
-## 💻 About the Project  
-
-The **Lucas Leria Portfolio CLI** is an innovative interactive portfolio that simulates a terminal interface with a Matrix/hacker theme, creating a unique and memorable experience to explore Lucas Gomes Leria's professional profile.
-
-- **Motivation**: Create a differentiated experience that highlights technical skills in an interactive way
-- **Target audience**: Recruiters, developers, technology companies, and the tech community
-- **Problem solved**: Traditional portfolios are static and not very memorable
-- **Differentiator**: Web-based CLI interface with integrated AI assistant
-- **Methodology**: Agile development with focus on UX/UI
-
-## 🎯 Objectives  
-
-### 🛠️ Technical  
-- Develop functional CLI interface in web environment
-- Implement extensible and intuitive command system
-- Integrate AI assistant with Google Gemini API
-- Create responsive and accessible experience
-
-### 📚 Professional  
-- Present 19+ projects in an organized and interactive way
-- Demonstrate full-stack development skills
-- Show expertise in AI/ML and modern technologies
-- Highlight experience in real impact projects
-
-### 🌍 User Experience  
-- Create memorable and differentiated experience
-- Facilitate navigation through professional information
-- Provide natural interaction with AI assistant
-- Maintain consistent design with technical theme
-
-## 🚀 Technologies  
-
-**Frontend & Framework**  
-- Next.js 15 (App Router)
-- TypeScript 5
-- Tailwind CSS 4
-- React 19
-
-**UI & Components**  
-- shadcn/ui
-- Radix UI
-- Framer Motion
-- Lucide React
-
-**Backend & APIs**  
-- Google Gemini AI
-- Socket.IO
-- Next.js API Routes
-
-**State & Data**  
-- Zustand
-- React Hook Form
-- Zod Validation
-
-## ✨ Features  
-
-- ✅ **Interactive CLI Interface:** Web-based terminal with Matrix theme, functional commands, and history navigation
-- ✅ **Command System:** 25+ commands organized by category (projects, skills, experience, etc.)
-- ✅ **AI Assistant "Ler":** Integration with Google Gemini API, humorous personality and contextual responses
-- ✅ **Interactive Modals:** Project visualization in production, articles, resume and live demos
-- ✅ **Responsive Design:** Adaptable interface for different devices with consistent technical theme
-- ✅ **Real-time Features:** Socket.IO for real-time communication and dynamic updates
-- ✅ **Intuitive Navigation:** Command history, autocomplete and immediate visual feedback
-
-## ⚙️ Prerequisites  
-
-To run the project locally, you will need:
-
-- **Node.js**: Version 18.0.0 or newer
-- **npm** or **yarn**: Package manager
-- **Git**: To clone the repository
-- **Google Gemini API Key**: For AI assistant functionality
-- **IDE**: Visual Studio Code, WebStorm or similar
-- **Browser**: Chrome, Firefox, Safari or modern Edge
-- **Storage**: 2GB+ RAM and 1GB+ free disk space
-
-## 🛠️ Installation  
-
-1. Clone the repository:
-```bash
-git clone https://github.com/lucasgleria/my-portf.git
-```
-
-2. Navigate to the project directory:
-```bash
-cd my-portf
-```
-
-3. Install dependencies:
-```bash
-npm install
-```
-
-4. Configure environment variables:
-```bash
-# Create a .env.local file in the project root
-cp .env.example .env.local
-
-# Add your Google Gemini API Key
-GOOGLE_API_KEY=your_api_key_here
-```
-
-5. Run the development server:
-```bash
+```sh
+npm ci
 npm run dev
 ```
 
-## ❗ How to Use
+Abra `http://localhost:3000`. Para conferir a versão de produção:
 
-1. Access the portfolio:
-```
-http://localhost:3000
-```
-
-2. Explore available commands:
-Type `help` in the terminal to see all available commands.
-
-3. Interact with the AI assistant:
-Use the command `ler <your question>` to chat with the AI assistant.
-
-4. Navigate through projects:
-- `projects` - See all projects
-- `aiProjects` - AI/ML projects
-- `desktopApps` - Desktop projects
-- `gameProjects` - Game development
-- `otherProjects` - DSA projects
-- `webProjects` - Web projects
-- `production` - Projects in production
-
-### ▶️ Main Commands
-
-```bash
-help                    # Shows all available commands
-articles                # Published articles
-production              # Projects in production with demos
-resume                  # Complete resume with Interface
-ler <question>          # Chat with AI assistant
-projects                # Lists all projects
-skills                  # Technical skills
-experience              # Professional experience
-contact                 # Contact information
-stats                   # Project statistics
+```sh
+npm run build:preview
+npm start
 ```
 
-## 📂 Project Structure  
+No PowerShell, use `npm.cmd` se a política local impedir a execução de `npm.ps1`. Os scripts não dependem de atribuição de variáveis em sintaxe POSIX, nodemon, Socket.IO ou auxiliares de `tmp/`. `PORT` pode ser definido pelo ambiente de hospedagem; os comandos padrão também aceitam `-- -p 3001`.
 
-```plaintext
-my-portf/
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── api/               # API Routes (ler, health)
-│   │   ├── globals.css        # Global styles
-│   │   ├── layout.tsx         # Main layout
-│   │   └── page.tsx           # Home page
-│   ├── cli/                   # Complete CLI system
-│   │   ├── commands/          # 25+ organized commands
-│   │   │   ├── handlers.ts    # Command manager
-│   │   │   ├── types.ts       # TypeScript types
-│   │   │   └── *.ts           # Individual commands
-│   │   ├── components/        # CLI components
-│   │   │   ├── CLI.tsx        # Main interface
-│   │   │   └── *.tsx          # Modals and components
-│   │   └── data/              # Portfolio data
-│   │       ├── portfolio.ts   # Main data
-│   │       ├── articles.ts    # Published articles
-│   │       └── productionProjects.ts
-│   ├── components/ui/         # shadcn/ui components
-│   ├── hooks/                 # Custom React hooks
-│   └── lib/                   # Utilities and configurations
-│       ├── socket.ts          # Socket.IO configuration
-│       └── utils.ts           # Utility functions
-├── public/                    # Static files
-├── server.ts                  # Custom server with Socket.IO
-├── package.json               # Dependencies and scripts
-├── tailwind.config.ts         # Tailwind configuration
-├── tsconfig.json              # TypeScript configuration
-└── README.md                  # This file
+## Rotas e idiomas
+
+| Rota | Conteúdo |
+|---|---|
+| `/` | Seleção de idioma e interface |
+| `/visual?lang=pt-BR` | Portfólio visual em português |
+| `/terminal?lang=en` | Terminal em inglês |
+| `/projects/<slug>?lang=pt-BR` | Página direta de um projeto |
+| `/robots.txt` | Instruções de indexação |
+| `/sitemap.xml` | URLs públicas do domínio oficial |
+| `/opengraph-image` | Imagem de compartilhamento gerada pelo projeto |
+
+A escolha de idioma é salva localmente quando o navegador permite. Links diretos preservam o idioma na URL. O seletor continua disponível; voltar, avançar e atualizar usam rotas reais. As páginas dos projetos são renderizadas no servidor.
+
+No Terminal, `help` lista os comandos. Os nomes continuam em inglês, com apresentação em português ou inglês. `projects` e os comandos de categoria usam o mesmo catálogo. `production` apresenta produtos, cases e projetos selecionados; nem todo item possui demo hospedada. As setas percorrem os comandos e restauram o rascunho de entrada; `clear` limpa a saída.
+
+## Assistente Ler
+
+O assistente funciona **sem credenciais**, com respostas a partir da base profissional revisada. Para habilitar geração externa, copie `.env.example` para `.env.local` e configure os dois campos opcionais:
+
+```dotenv
+GOOGLE_API_KEY=
+GOOGLE_MODEL=
 ```
 
-## 🤝 Contributing
+Não inclua segredos no Git. A interface informa se a resposta é local ou gerada com IA. Perguntas privadas são recusadas antes de chamar o provedor. O limite é de 2000 caracteres; o servidor limita a geração a 8 segundos e o cliente espera no máximo 12 segundos. Erros do provedor usam a resposta local.
 
-Contributions are welcome! Follow these steps:
+Há um orçamento de 12 gerações externas por minuto **por processo de servidor**, sem confiar em IPs fornecidos pelo cliente. Para hospedar várias instâncias, substituir esse orçamento por controle compartilhado ou do provedor antes de prometer uma cota global. O perfil local não consome esse orçamento.
 
-### **1. Report bugs**
-- Open an [issue](https://github.com/lucasgleria/lucas-leria-portfolio/issues) on GitHub
-- Describe the problem in detail
-- Include screenshots and logs if possible
+## Verificações e publicação
 
-### **2. Suggest improvements**
-- Send ideas through issues
-- Propose new features
-- Discuss design improvements
+```sh
+npm test
+npm run typecheck
+npm run lint
+npm run build:preview
+npm run build
+npm run check
+npm run test:e2e
+npm run security:framework
+npm run release:check
+```
 
-### **3. Develop**
-- Fork the project
-- Create a branch (`git checkout -b feature/new-feature`)
-- Make your changes following project standards
-- Add tests for new features
-- Commit (`git commit -m 'feat: new feature'`)
-- Send a Pull Request
+`check` executa testes, tipos, lint sem avisos e build de prévia. Os builds não ignoram falhas de tipos ou lint; Strict Mode está ativo. O comando padrão `build` também executa o gate de segurança por `prebuild`, protegendo a publicação padrão no Vercel. `build:preview` permite revisar localmente o trabalho pendente de atualização e não aprova sua publicação. O workflow `.github/workflows/verify.yml` prepara as verificações no CI e verifica a versão de segurança do framework.
 
-### **4. Code Standards**
-- Follow Next.js conventions
-- Use TypeScript for type safety
-- Keep components small and reusable
-- Document complex functions
-- Test on different devices
+Next.js e `eslint-config-next` estão fixados em **15.5.29**, com lockfile atualizado. Essa versão atende à referência de segurança revisada em 15/11/2026 ([release oficial](https://github.com/vercel/next.js/releases/tag/v15.5.29)). O CI faz instalação limpa, verifica o framework, executa testes, tipos, lint, build e jornadas de navegador antes de promover a entrega. Os avisos vigentes devem ser conferidos novamente nas próximas atualizações. Ver [política de suporte](https://nextjs.org/support-policy).
 
-## 📜 License  
+Canonical, sitemap e metadados absolutos usam o domínio oficial confirmado pelo proprietário. Para substituir esse endereço em outro ambiente, configure no build e na execução:
 
-Distributed under MIT license. See [LICENSE](LICENSE) for more information. 
+```dotenv
+SITE_URL=https://portfolio-lucas-leria.vercel.app
+```
 
-## 📞 Contact
-- **Author**: [Lucas Gomes Leria](https://github.com/lucasgleria)
-- **Email**: lucasleria17@gmail.com
-- **LinkedIn**: [lucasleria](https://www.linkedin.com/in/lucasleria/)
-- **GitHub**: [lucasgleria](https://github.com/lucasgleria)
+Sem `SITE_URL`, o padrão é `https://portfolio-lucas-leria.vercel.app/`. A prévia local pode usar `http://127.0.0.1:3000`. A versão hospedada deve usar o endereço público definitivo.
 
-## 🔎 Additional Resources  
+A suíte `test:e2e` cobre desktop e celular com Playwright e usa respostas locais ou simuladas para a IA. Após instalar dependências, execute `npx playwright install chromium` uma vez. O CI instala o navegador e suas dependências. O ambiente precisa permitir processos filhos; uma falha `spawn EPERM` impede a execução da suíte e não conta como aprovação dos testes.
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Tailwind CSS](https://tailwindcss.com/docs)
-- [Google Gemini AI](https://ai.google.dev/gemini)
-- [Socket.IO](https://socket.io/docs/)
-- [shadcn/ui Components](https://ui.shadcn.com/)
+## Conteúdo e manutenção
+
+- `src/cli/data/productionProjects.ts`: catálogo selecionado e categorias. `seo` é o identificador usado nas rotas.
+- `src/components/portfolio/content.ts`: traduções e apresentação dos dados.
+- `src/cli/data/project-catalog.ts`: catálogo compartilhado, incluindo entradas históricas sem afirmar publicação atual.
+- `src/cli/data/professional-profile.ts`: fatos profissionais revisados.
+- `src/cli/data/case-studies.ts`: problema, contribuição, decisões e próximo passo dos cases recentes.
+- `src/lib/professional-knowledge.ts`: contexto e respostas locais do assistente.
+- `tests/professional-knowledge.test.mjs`: privacidade, dados, API, catálogo, histórico e cliente do assistente.
+
+Atualize fatos e fontes antes de alterar afirmações de experiência ou impacto. Preserve as exclusões definidas na política profissional. O produto público `vault-template` é separado do vault privado. Demonstrações e capturas devem usar dados fictícios. Relatórios privados de revisão ficam em `tmp/`, que é ignorado pelo Git.
+
+Os diálogos usam o Radix já instalado, com fechamento por Escape e gestão de foco. Artigos e demonstrações abrem nas plataformas de origem; o site não carrega esses iframes durante a navegação. Fontes, modais e interfaces devem ser avaliados no ambiente real de publicação antes de afirmar resultados de desempenho ou acessibilidade.
+
+## Licença
+
+Distribuído sob licença MIT. Consulte [LICENSE](LICENSE).

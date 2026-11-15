@@ -1,502 +1,334 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { Terminal, Command, HelpCircle, MessageSquare, User, Code, Mail, Github, Linkedin } from 'lucide-react'
-import { CommandHistory } from '../commands/types'
-import { ProductionProjectsModal } from './ProductionProjectsModal'
+'use client'
+
+import React, { useState, useRef, useEffect, useMemo } from 'react'
+import dynamic from 'next/dynamic'
+import { Terminal, Command, HelpCircle, MessageSquare, User, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import type { Language } from '@/components/portfolio/content'
+import { terminalCopy, quickQuestions } from '../data/terminal-copy'
+import type { CommandHistory } from '../commands/types'
 import { createCommandHandlers } from '../commands/handlers'
-import { ArticlesModal } from './ArticlesModal'
-import { ResumeModal } from './ResumeModal'
-import { LerChatModal } from './LerChatModal'
 import { productionProjects } from '../data/productionProjects'
 import { articles } from '../data/articles'
+import { professionalProfile } from '../data/professional-profile'
+import { askAssistant, assistantSourceLabel } from '@/lib/assistant-client'
+import { navigateHistory, rememberCommand } from '@/lib/terminal-history'
 
-interface CLIProps {
-  onLerMessage?: (message: string) => void
-}
+const ProductionProjectsModal = dynamic(() => import('./ProductionProjectsModal').then(module => module.ProductionProjectsModal))
+const ArticlesModal = dynamic(() => import('./ArticlesModal').then(module => module.ArticlesModal))
+const ResumeModal = dynamic(() => import('./ResumeModal').then(module => module.ResumeModal))
+const LerChatModal = dynamic(() => import('./LerChatModal').then(module => module.LerChatModal))
 
-export const CLI: React.FC<CLIProps> = ({ onLerMessage }) => {
+interface CLIProps { language?: Language; onLerMessage?: (message: string) => void }
+const welcome = (language: Language): CommandHistory => ({
+  id: 'welcome', command: '', type: 'success',
+  output: language === 'pt-BR'
+    ? 'Bem-vindo ao portfólio profissional de Lucas Leria!\n' + professionalProfile.title[language] + '\n' + productionProjects.length + ' projetos e cases selecionados. Digite "help" para explorar.'
+    : 'Welcome to Lucas Leria’s professional portfolio!\n' + professionalProfile.title[language] + '\n' + productionProjects.length + ' selected projects and technical cases. Type "help" to explore.',
+})
+
+export const CLI: React.FC<CLIProps> = ({ onLerMessage, language = 'en' }) => {
+  const text = terminalCopy[language]
   const [input, setInput] = useState('')
-  const [history, setHistory] = useState<CommandHistory[]>([
-    {
-      command: '',
-      output: 'Welcome to Lucas Leria\'s Portfolio CLI! 🚀\nIT Technician | DBA | Full-Stack Developer | Studying AI & Data Science | 19+ Projects\nType "help" to explore commands or "lerchat" to open the Ler Chat desktop app!',
-      type: 'success'
-    }
-  ])
+  const [history, setHistory] = useState<CommandHistory[]>(() => [welcome(language)])
   const [showLer, setShowLer] = useState(true)
-  const [lerMessage, setLerMessage] = useState("Hey! I'm Ler, Lucas's AI assistant! 🤖 I'm here to help you explore his amazing portfolio!")
+  const [lerMessage, setLerMessage] = useState(professionalProfile.intro[language])
   const [isLerThinking, setIsLerThinking] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const terminalRef = useRef<HTMLDivElement>(null)
   const [showProductionModal, setShowProductionModal] = useState(false)
   const [showArticlesModal, setShowArticlesModal] = useState(false)
   const [showResumeModal, setShowResumeModal] = useState(false)
   const [showLerChatModal, setShowLerChatModal] = useState(false)
-  
-  // Command history navigation state
+  const [chatLoaded, setChatLoaded] = useState(false)
   const [commandHistory, setCommandHistory] = useState<string[]>([])
   const [historyIndex, setHistoryIndex] = useState(-1)
   const [tempInput, setTempInput] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+  const terminalRef = useRef<HTMLDivElement>(null)
+  const nextId = useRef(0)
+  const requests = useRef(new Map<string, AbortController>())
+  const mounted = useRef(true)
+  const commands = useMemo(() => createCommandHandlers({ language, setHistory, setShowProductionModal, setShowArticlesModal, setShowResumeModal, setShowLerChatModal }), [language])
 
-  // Fun facts, tips, and jokes about Lucas and tech
-  const lerMessages = [
-    "💡 Did you know? Lucas has 19+ projects spanning AI/ML, web development, and desktop applications!",
-    "🤖 Fun fact: Lucas is fluent in both Python and Portuguese - native in one, expert in the other!",
-    "🚀 Lucas's projects have reduced management time by 80% in real-world applications. Now that's efficiency!",
-    "🧠 Why do data scientists love nature? Because it has so many natural decision trees! 🌳",
-    "💻 Lucas works with TensorFlow, PyTorch, React, and Node.js. Talk about full-stack expertise!",
-    "🎓 Lucas graduated with a Database Management degree focused on Data Analysis. Data is in his DNA!",
-    "⚡ Why did the developer go broke? Because he used up all his cache! Lucas never has this problem!",
-    "🌟 Lucas has 97% English proficiency - almost as perfect as his code formatting!",
-    "🔍 Lucas specializes in Computer Vision, NLP, and MLOps. He can make computers see, talk, and learn!",
-    "🎯 Fun fact: Lucas is from São Paulo, Brazil - the same city as the headquarters of many tech startups!",
-    "🛠️ Lucas uses Docker for containerization. His apps never have the 'it works on my machine' problem!",
-    "📊 Why do data scientists make good comedians? They know all the best outliers! 😄",
-    "🌐 Lucas has experience with Google Gemini API and conversational AI. He's literally teaching machines to chat!",
-    "🎮 When Lucas isn't coding, he's probably training models. Or debugging. Let's be honest, mostly debugging!",
-    "🏆 Lucas's projects include LibraVoice - a sign language recognition system. Now that's AI with a purpose!",
-    "⚙️ Why did the machine learning model go to therapy? It had too many layers and couldn't stop overthinking!",
-    "📱 Lucas builds desktop apps, web apps, and AI systems. He's basically a tech Swiss Army knife!",
-    "🎪 Lucas says data science is 90% data cleaning and 10% telling people you're a data scientist!",
-    "🌉 Lucas bridges the gap between AI theory and practical applications. He's the bridge everyone wants to cross!",
-    "🎪 Why was the developer cold? Because he left his Windows open! Lucas prefers Linux, of course! 🐧"
-  ]
-
-  // Loading messages for when Ler is thinking
-  const loadingMessages = [
-    "🤖 Ler is processing your question...",
-    "🧠 Consulting my neural networks...",
-    "💭 Searching through Lucas's portfolio data...",
-    "🔍 Analyzing the query about Lucas...",
-    "⚡ Processing your request at light speed...",
-    "🎯 Fetching information about Lucas...",
-    "📚 Accessing Lucas's project database...",
-    "🌟 Generating a tailored response for you...",
-    "🚀 Ler is thinking at the speed of AI...",
-    "💡 Consulting my knowledge base about Lucas..."
-  ]
-
-  // Get a random message from the array
-  const getRandomMessage = () => {
-    return lerMessages[Math.floor(Math.random() * lerMessages.length)]
-  }
-
-  // Get a random loading message
-  const getRandomLoadingMessage = () => {
-    return loadingMessages[Math.floor(Math.random() * loadingMessages.length)]
-  }
-
-  // Change message when user runs commands
   useEffect(() => {
-    if (history.length > 1 && !isLerThinking) { // Don't change on initial load, only after user commands
-      setLerMessage(getRandomMessage())
-    }
-  }, [history, isLerThinking])
-
-  const commandContext = {
-    setHistory,
-    setShowProductionModal,
-    setShowArticlesModal,
-    setShowResumeModal,
-    setShowLerChatModal
-  }
-
-  const commands = createCommandHandlers(commandContext)
+    mounted.current = true
+    const pending = requests.current
+    return () => { mounted.current = false; pending.forEach(controller => controller.abort()); pending.clear() }
+  }, [])
+  useEffect(() => {
+    setHistory(previous => previous.map(item => item.id === 'welcome' ? welcome(language) : item))
+    setLerMessage(professionalProfile.intro[language])
+  }, [language])
+  useEffect(() => { terminalRef.current?.scrollTo({ top: terminalRef.current.scrollHeight, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }) }, [history])
+  useEffect(() => { inputRef.current?.focus() }, [])
+  useEffect(() => { if (showLerChatModal) setChatLoaded(true) }, [showLerChatModal])
 
   const executeCommand = async (cmd: string) => {
-    const trimmedCmd = cmd.trim()
-    if (!trimmedCmd) return
-
-    const [command, ...args] = trimmedCmd.split(' ')
-    
-    try {
-      let output: string = ''
-      
-      if (command === 'ler') {
-        const message = args.join(' ')
-        if (message) {
-          setIsLerThinking(true)
-          setLerMessage(getRandomLoadingMessage())
-          
-          if (onLerMessage) {
-            onLerMessage(message)
-          }
-          
-          // Add initial command entry with thinking message
-          setHistory(prev => [...prev, { command: trimmedCmd, output: '🤖 Ler is thinking about your question...', type: 'success' }])
-          
-          // Fetch AI response
-          try {
-            const response = await fetch('/api/ler', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ message }),
-            })
-            
-            const data = await response.json()
-            const aiResponse = data.response || "Sorry, I'm having trouble responding right now!"
-            
-            // Update the history with the AI response
-            setHistory(prev => {
-              const newHistory = [...prev]
-              // Find and update the last ler command
-              for (let i = newHistory.length - 1; i >= 0; i--) {
-                if (newHistory[i].command === trimmedCmd && newHistory[i].output === '🤖 Ler is thinking about your question...') {
-                  newHistory[i] = { ...newHistory[i], output: `🤖 ${aiResponse}` }
-                  break
-                }
-              }
-              return newHistory
-            })
-            
-            // Don't update lerMessage with AI response - let it continue showing random tips
-          } catch (error) {
-            console.error('Error fetching AI response:', error)
-            const fallbackResponse = "Oops! My neural networks are a bit tangled right now. Lucas says that happens during model training too! 🤖"
-            
-            setHistory(prev => {
-              const newHistory = [...prev]
-              for (let i = newHistory.length - 1; i >= 0; i--) {
-                if (newHistory[i].command === trimmedCmd && newHistory[i].output === '🤖 Ler is thinking about your question...') {
-                  newHistory[i] = { ...newHistory[i], output: `🤖 ${fallbackResponse}` }
-                  break
-                }
-              }
-              return newHistory
-            })
-            
-            // Don't update lerMessage with fallback response - let it continue showing random tips
-          } finally {
-            setIsLerThinking(false)
-            // After processing, go back to showing random tips
-            setTimeout(() => {
-              setLerMessage(getRandomMessage())
-            }, 2000)
-          }
-          
-          // Clear the input after executing the command
-          setInput('')
-          return // Return early since we've already updated the history
-        } else {
-          output = 'Please provide a question for Ler. Example: "ler Tell me about Lucas\'s AI projects"'
-        }
-      } 
-      else if (commands[command as keyof typeof commands]) {
-        const cmdFunction = commands[command as keyof typeof commands]
-        if (typeof cmdFunction === 'function') {
-            output = (cmdFunction as () => string)()
-        } else {
-          output = cmdFunction as string
-        }
-      } else {
-        output = `Command not found: ${command}. Type 'help' to see available commands.`
-      }
-
-      // Add the command with its output in a single entry
-      setHistory(prev => [...prev, { command: trimmedCmd, output, type: 'success' }])
-    } catch (error) {
-      // Add the command with error output in a single entry
-      setHistory(prev => [...prev, { 
-        command: trimmedCmd, 
-        output: `Error executing command: ${error}`, 
-        type: 'error' 
-      }])
-    }
-
-    setInput('')
-    
-    // Add command to history (only if it's not empty and not the same as the last command)
-    if (trimmedCmd && trimmedCmd !== commandHistory[commandHistory.length - 1]) {
-      setCommandHistory(prev => {
-        const newHistory = [...prev, trimmedCmd]
-        // Keep only the last 20 commands
-        return newHistory.slice(-20)
-      })
-    }
-    
-    // Reset history navigation
+    const trimmed = cmd.trim()
+    if (!trimmed) return
+    setCommandHistory(previous => rememberCommand(previous, trimmed))
     setHistoryIndex(-1)
     setTempInput('')
+    setInput('')
+    const [command, ...args] = trimmed.split(/\s+/)
+    if (command === 'clear') { setHistory([]); return }
+    const id = String(++nextId.current)
+    if (command === 'ler' && args.length) {
+      const controller = new AbortController()
+      requests.current.set(id, controller)
+      setIsLerThinking(true)
+      setHistory(previous => [...previous, { id, command: trimmed, output: text.thinking, type: 'success' }])
+      onLerMessage?.(args.join(' '))
+      try {
+        const result = await askAssistant(args.join(' '), language, controller.signal)
+        if (mounted.current) setHistory(previous => previous.map(item => item.id === id ? { ...item, output: result.response, source: result.source } : item))
+      } catch (error) {
+        if (mounted.current && !controller.signal.aborted) setHistory(previous => previous.map(item => item.id === id ? { ...item, output: error instanceof Error ? error.message : text.ready, type: 'error' } : item))
+      } finally {
+        requests.current.delete(id)
+        if (mounted.current) setIsLerThinking(requests.current.size > 0)
+      }
+      return
+    }
+    try {
+      const handler = commands[command as keyof typeof commands]
+      const output = command === 'ler'
+        ? (language === 'pt-BR' ? 'Use ler seguido da sua pergunta.' : 'Use ler followed by your question.')
+        : handler ? (handler as () => string | void)() : (language === 'pt-BR' ? 'Comando não encontrado. Digite help.' : 'Command not found. Type help.')
+      if (typeof output === 'string' && output) setHistory(previous => [...previous, { id, command: trimmed, output, type: 'success' }])
+    } catch {
+      setHistory(previous => [...previous, { id, command: trimmed, output: language === 'pt-BR' ? 'Não foi possível executar este comando.' : 'Unable to execute this command.', type: 'error' }])
+    }
   }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    executeCommand(input)
-  }
-
-  useEffect(() => {
-    if (terminalRef.current) {
-      // Smooth scroll to bottom with a small delay to ensure content is rendered
-      setTimeout(() => {
-        if (terminalRef.current) {
-          terminalRef.current.scrollTo({
-            top: terminalRef.current.scrollHeight,
-            behavior: 'smooth'
-          })
-        }
-      }, 50)
-    }
-  }, [history])
-
-  useEffect(() => {
-    inputRef.current?.focus()
-  }, [])
-
-  // Reset history navigation when user modifies input manually
-  useEffect(() => {
-    if (historyIndex !== -1) {
-      setHistoryIndex(-1)
-      setTempInput('')
-    }
-  }, [input, historyIndex])
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      
-      // If we're at the beginning and there's current input, save it
-      if (historyIndex === -1 && input.trim()) {
-        setTempInput(input)
-      }
-      
-      if (commandHistory.length > 0) {
-        const newIndex = Math.min(historyIndex + 1, commandHistory.length - 1)
-        setHistoryIndex(newIndex)
-        setInput(commandHistory[commandHistory.length - 1 - newIndex])
-      }
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      
-      if (historyIndex > 0) {
-        // Go to newer command
-        const newIndex = historyIndex - 1
-        setHistoryIndex(newIndex)
-        setInput(commandHistory[commandHistory.length - 1 - newIndex])
-      } else if (historyIndex === 0) {
-        // Go back to the original input
-        setHistoryIndex(-1)
-        setInput(tempInput)
-      } else if (historyIndex === -1) {
-        // Already at the bottom, clear input
-        setInput('')
-      }
-    }
+  const handleSubmit = (event: React.FormEvent) => { event.preventDefault(); void executeCommand(input) }
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
+    event.preventDefault()
+    const next = navigateHistory(commandHistory, input, historyIndex, tempInput, event.key === 'ArrowUp' ? 'up' : 'down')
+    setInput(next.input); setHistoryIndex(next.index); setTempInput(next.draft)
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full">
-      {/* Header */}
-      <div className="bg-gray-800 border-b border-green-400 px-4 py-2 flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center space-x-2">
-          <Terminal className="w-5 h-5 text-green-400" />
-          <span className="text-green-400 font-mono text-sm">Lucas Leria Portfolio CLI v1.0</span>
+    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0d1510]">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-portfolio-surface px-4 py-3 sm:px-5">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-emerald-300/10">
+            <Terminal aria-hidden="true" className="size-4 text-emerald-300" />
+          </span>
+          <span className="font-mono text-xs text-gray-300">
+            portfolio<span className="mx-2 text-gray-600">/</span>terminal
+          </span>
         </div>
-        <div className="flex items-center space-x-2">
-          <button
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
             onClick={() => setShowLer(!showLer)}
-            className="text-green-400 hover:text-green-300 transition-colors"
-            title="Toggle Ler Assistant"
+            aria-label={showLer ? text.hideAssistant : text.showAssistant}
+            title={showLer ? text.hideAssistant : text.showAssistant}
+            aria-expanded={showLer}
+            aria-controls="ler-assistant"
+            className="size-8 text-gray-400 hover:bg-white/5 hover:text-emerald-200"
           >
-            <MessageSquare className="w-4 h-4" />
-          </button>
-          <button
+            <MessageSquare aria-hidden="true" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
             onClick={() => setHistory([])}
-            className="text-green-400 hover:text-green-300 transition-colors"
-            title="Clear Terminal"
+            aria-label={text.clear}
+            title={text.clear}
+            className="size-8 text-gray-400 hover:bg-white/5 hover:text-emerald-200"
           >
-            <Command className="w-4 h-4" />
-          </button>
-          <button
+            <Command aria-hidden="true" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
             onClick={() => executeCommand('help')}
-            className="text-green-400 hover:text-green-300 transition-colors"
-            title="Show Help"
+            aria-label={text.help}
+            title={text.help}
+            className="size-8 text-gray-400 hover:bg-white/5 hover:text-emerald-200"
           >
-            <HelpCircle className="w-4 h-4" />
-          </button>
+            <HelpCircle aria-hidden="true" />
+          </Button>
         </div>
       </div>
 
-      {/* Terminal Content */}
-      <div className="flex-1 flex overflow-hidden min-h-0">
-        {/* Main Terminal */}
-        <div className="flex-1 flex flex-col min-w-0 h-full">
+      <div
+        role="group"
+        aria-label={text.shortcuts}
+        className="flex shrink-0 flex-wrap gap-2 border-b border-white/10 px-4 py-3 sm:px-5"
+      >
+        {['help', 'projects', 'skills', 'contact', 'resume'].map((command) => (
+          <button
+            key={command}
+            type="button"
+            onClick={() => executeCommand(command)}
+            aria-label={`${text.run}: ${command}`}
+            className="rounded-md border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-[11px] text-gray-400 transition-colors hover:border-emerald-300/30 hover:text-emerald-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+          >
+            {command}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <div
             ref={terminalRef}
-            className="flex-1 overflow-y-auto overflow-x-hidden p-4 font-mono text-sm space-y-2 terminal-container"
-            style={{
-              scrollBehavior: 'smooth'
-            }}
+            className="terminal-container flex-1 space-y-5 overflow-y-auto overflow-x-hidden p-4 font-mono text-xs leading-7 sm:p-6 sm:text-sm"
           >
-            {history.map((item, index) => (
-              <div key={index} className="space-y-1 max-w-full">
-                {item.command && (
-                  <div className="flex items-start space-x-2 min-w-0 w-full max-w-full">
-                    <span className="text-green-400 flex-shrink-0 mt-0.5">$</span>
-                    <span className="text-green-300 terminal-text flex-1 min-w-0">
-                      {item.command}
-                    </span>
-                  </div>
-                )}
-                {item.output && (
-                  <div
-                    className={`${
-                      item.type === 'error' ? 'text-red-400' :
-                      item.type === 'success' ? 'text-green-300' :
-                      'text-green-200'
-                    } terminal-output max-w-full`}
-                  >
-                    {item.output}
-                  </div>
-                )}
-              </div>
-            ))}
-            
-            {/* Input Line */}
-            <form onSubmit={handleSubmit} className="flex items-start space-x-2 flex-shrink-0 w-full max-w-full mt-2">
-              <span className="text-green-400 flex-shrink-0 mt-0.5">$</span>
+            <div
+              role="log"
+              aria-label={text.output}
+              aria-live="polite"
+              aria-relevant="additions text"
+              lang={language}
+              className="space-y-5"
+            >
+              {history.map((item, index) => (
+                <div key={index} className="max-w-full space-y-2">
+                  {item.command && (
+                    <div className="flex min-w-0 items-start gap-3">
+                      <span aria-hidden="true" className="shrink-0 text-emerald-300">
+                        $
+                      </span>
+                      <span className="terminal-text min-w-0 flex-1 text-emerald-200">
+                        {item.command}
+                      </span>
+                    </div>
+                  )}
+                  {item.output && (
+                    <div
+                      className={`terminal-output max-w-full ${item.type === 'error' ? 'text-rose-300' : 'text-gray-300'}`}
+                    >
+                      {item.output}
+                      {item.source && <p className="mt-2 text-xs text-emerald-300">{assistantSourceLabel(item.source, language)}</p>}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <form
+              onSubmit={handleSubmit}
+              className="mt-5 flex w-full min-w-0 items-start gap-3 rounded-lg border border-white/10 bg-white/[0.025] p-3 transition-colors focus-within:border-emerald-300/40"
+            >
+              <span aria-hidden="true" className="shrink-0 text-emerald-300">
+                $
+              </span>
               <input
                 ref={inputRef}
                 type="text"
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(event) => { setInput(event.target.value); setHistoryIndex(-1); setTempInput('') }}
                 onKeyDown={handleKeyDown}
-                className="flex-1 bg-transparent outline-none text-green-300 placeholder-green-600 terminal-input min-w-0"
-                placeholder="Type a command..."
+                aria-label={text.input}
+                aria-describedby="terminal-input-hint"
+                maxLength={2004}
+                autoComplete="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                className="terminal-input min-w-0 flex-1 bg-transparent text-emerald-100 caret-emerald-300 outline-none placeholder:text-gray-600"
+                placeholder={text.placeholder}
                 autoFocus
               />
             </form>
           </div>
-
-          {/* Footer */}
-          <div className="bg-gray-800 border-t border-green-400 px-4 py-2 flex-shrink-0">
-            <div className="flex items-center justify-between text-xs text-green-400">
-              <div className="flex items-center space-x-4">
-                <span>Type "help" for commands</span>
-                <span>•</span>
-                <span>↑↓ for command history (20 stored)</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <User className="w-3 h-3" />
-                <span>portfolio-visitor</span>
-              </div>
+          <div className="shrink-0 border-t border-white/10 bg-portfolio-surface px-4 py-3 sm:px-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-[10px] text-gray-500">
+              <span id="terminal-input-hint">{text.hint}</span>
+              <span className="hidden sm:inline">{text.history}</span>
+              <span className="hidden items-center gap-2 lg:flex">
+                <User aria-hidden="true" className="size-3" />
+                portfolio-visitor
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Ler Assistant Sidebar */}
         {showLer && (
-          <div className="w-80 bg-gray-800 border-l border-green-400 p-4 flex flex-col min-w-0">
-            <div className="flex items-center justify-between mb-4 flex-shrink-0">
-              <div className="flex items-center space-x-2">
-                <MessageSquare className="w-4 h-4 text-green-400" />
-                <span className="text-green-400 font-mono text-sm font-semibold">Ler Assistant</span>
+          <aside
+            id="ler-assistant"
+            aria-labelledby="ler-assistant-title"
+            className="flex h-56 w-full shrink-0 flex-col border-t border-white/10 bg-portfolio-surface p-4 lg:h-auto lg:w-80 lg:border-t-0 lg:border-l lg:p-5"
+          >
+            <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <MessageSquare aria-hidden="true" className="size-4 text-emerald-300" />
+                <h2 id="ler-assistant-title" className="text-sm font-medium text-gray-100">
+                  {text.assistant}
+                </h2>
               </div>
-              <button
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => setShowLer(false)}
-                className="text-green-400 hover:text-green-300 transition-colors flex-shrink-0"
+                aria-label={text.closeAssistant}
+                className="size-7 text-gray-500 hover:bg-white/5 hover:text-white"
               >
-                ×
-              </button>
+                <X aria-hidden="true" />
+              </Button>
             </div>
-            
-            <div className="flex-1 overflow-y-auto overflow-x-hidden min-w-0">
-              <div className="bg-black border border-green-400 rounded p-3 mb-4">
-                <p className="text-green-300 font-mono text-xs leading-relaxed terminal-text">
+            <div className="terminal-scrollbar min-h-0 min-w-0 flex-1 overflow-y-auto">
+              <div className="mb-5 rounded-xl border border-white/10 bg-[#0d1510] p-4">
+                <p lang="en" className="terminal-text text-xs leading-7 text-gray-400">
                   {lerMessage}
                 </p>
                 {isLerThinking && (
-                  <div className="mt-2 flex items-center space-x-1">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-green-400 text-xs">Thinking...</span>
+                  <div className="mt-3 flex items-center gap-2 text-xs text-emerald-200">
+                    <span className="size-1.5 rounded-full bg-emerald-300 motion-safe:animate-pulse" />
+                    {text.thinking}
                   </div>
                 )}
               </div>
-              
+              <h3 className="mb-3 font-mono text-[10px] uppercase tracking-wider text-gray-500">
+                {text.questions}
+              </h3>
               <div className="space-y-2">
-                <h4 className="text-green-400 font-mono text-xs font-semibold">Quick Questions:</h4>
-                <button
-                  onClick={() => executeCommand('ler Tell me about Lucas\'s background')}
-                  disabled={isLerThinking}
-                  className={`block w-full text-left font-mono text-xs p-2 rounded border transition-colors terminal-text ${
-                    isLerThinking 
-                      ? 'text-green-600 border-green-800 cursor-not-allowed' 
-                      : 'text-green-300 hover:text-green-200 border-green-800 hover:border-green-600'
-                  }`}
-                >
-                  • Tell me about Lucas's background
-                </button>
-                <button
-                  onClick={() => executeCommand('ler What are Lucas\'s main skills?')}
-                  disabled={isLerThinking}
-                  className={`block w-full text-left font-mono text-xs p-2 rounded border transition-colors terminal-text ${
-                    isLerThinking 
-                      ? 'text-green-600 border-green-800 cursor-not-allowed' 
-                      : 'text-green-300 hover:text-green-200 border-green-800 hover:border-green-600'
-                  }`}
-                >
-                  • What are Lucas's main skills?
-                </button>
-                <button
-                  onClick={() => executeCommand('ler Show me his AI projects')}
-                  disabled={isLerThinking}
-                  className={`block w-full text-left font-mono text-xs p-2 rounded border transition-colors terminal-text ${
-                    isLerThinking 
-                      ? 'text-green-600 border-green-800 cursor-not-allowed' 
-                      : 'text-green-300 hover:text-green-200 border-green-800 hover:border-green-600'
-                  }`}
-                >
-                  • Show me his AI projects
-                </button>
-                <button
-                  onClick={() => executeCommand('ler How can I contact Lucas?')}
-                  disabled={isLerThinking}
-                  className={`block w-full text-left font-mono text-xs p-2 rounded border transition-colors terminal-text ${
-                    isLerThinking 
-                      ? 'text-green-600 border-green-800 cursor-not-allowed' 
-                      : 'text-green-300 hover:text-green-200 border-green-800 hover:border-green-600'
-                  }`}
-                >
-                  • How can I contact Lucas?
-                </button>
+                {quickQuestions.map((question) => (
+                  <button
+                    key={question.key}
+                    type="button"
+                    onClick={() => executeCommand(question.command)}
+                    disabled={isLerThinking}
+                    className="block w-full rounded-lg border border-white/10 p-3 text-left text-xs leading-6 text-gray-400 transition-colors hover:border-emerald-300/30 hover:bg-white/5 hover:text-gray-100 focus-visible:outline-2 focus-visible:outline-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {text[question.key]}
+                  </button>
+                ))}
               </div>
             </div>
-            
-            <div className="mt-4 pt-4 border-t border-green-800">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-green-400 font-mono">Ler AI</span>
-                <div className="flex items-center space-x-1">
-                  <div className={`w-2 h-2 rounded-full ${isLerThinking ? 'bg-yellow-400 animate-pulse' : 'bg-green-400'}`}></div>
-                  <span className="text-green-400">{isLerThinking ? 'Thinking...' : 'Online'}</span>
-                </div>
-              </div>
+            <div className="mt-4 flex shrink-0 items-center justify-between border-t border-white/10 pt-4 font-mono text-[10px] text-gray-500">
+              <span>Ler</span>
+              <span className="flex items-center gap-2">
+                <span
+                  className={`size-1.5 rounded-full ${isLerThinking ? 'bg-amber-300 motion-safe:animate-pulse' : 'bg-emerald-300'}`}
+                />
+                {isLerThinking ? text.thinking : text.ready}
+              </span>
             </div>
-          </div>
+          </aside>
         )}
       </div>
 
-      {/* Modals */}
-      <ProductionProjectsModal
+      {showProductionModal && <ProductionProjectsModal
         showProductionModal={showProductionModal}
         setShowProductionModal={setShowProductionModal}
         productionProjects={productionProjects}
-      />
-      
-      <ArticlesModal
+        language={language}
+      />}
+      {showArticlesModal && <ArticlesModal
         showArticlesModal={showArticlesModal}
         setShowArticlesModal={setShowArticlesModal}
         articles={articles}
-      />
-      
-      <ResumeModal
-        showResumeModal={showResumeModal}
-        setShowResumeModal={setShowResumeModal}
-      />
-      
-      <LerChatModal
-        isOpen={showLerChatModal}
-        onClose={() => setShowLerChatModal(false)}
-      />
+        language={language}
+      />}
+      {showResumeModal && <ResumeModal showResumeModal={showResumeModal} setShowResumeModal={setShowResumeModal} language={language} />}
+      {(showLerChatModal || chatLoaded) && <LerChatModal isOpen={showLerChatModal} onClose={() => setShowLerChatModal(false)} language={language} />}
     </div>
   )
 }

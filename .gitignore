@@ -91,7 +91,6 @@ dist
 
 # Gatsby files
 .cache/
-public
 
 # Vuepress build output
 .vuepress/dist
@@ -153,7 +152,6 @@ coverage
 
 # Dependency directories
 node_modules/
-package-lock.json
 jspm_packages/
 
 # Optional npm cache directory
@@ -206,6 +204,8 @@ jspm_packages/
 
 # Temporary folders
 tmp/
+playwright-report/
+test-results/
 temp/
 
 # Editor directories and files

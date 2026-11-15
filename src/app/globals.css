@@ -4,10 +4,12 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-portfolio-background: var(--portfolio-background);
+  --color-portfolio-surface: var(--portfolio-surface);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-geist-sans, ui-sans-serif, system-ui, sans-serif);
+  --font-mono: var(--font-geist-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -44,6 +46,9 @@
 }
 
 :root {
+  --portfolio-background: #080e0b;
+  --portfolio-surface: #101914;
+  --portfolio-accent: #6ee7b7;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -76,6 +81,15 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .dark {
@@ -124,9 +138,9 @@
 /* Terminal-specific styles for robust text handling */
 @layer utilities {
   .terminal-text {
-    word-break: break-all !important;
-    overflow-wrap: break-word !important;
-    hyphens: auto !important;
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
+    hyphens: none !important;
     overflow-x: hidden !important;
     max-width: 100% !important;
     width: 100% !important;
@@ -135,45 +149,55 @@
   
   .terminal-output {
     white-space: pre-wrap !important;
-    word-break: break-all !important;
-    overflow-wrap: break-word !important;
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
     overflow-x: hidden !important;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
-    line-height: 1.4 !important;
+    line-height: 1.75 !important;
   }
   
   .terminal-container {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-    word-break: break-all !important;
-    overflow-wrap: break-word !important;
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
     display: flex !important;
     flex-direction: column !important;
     max-height: 100% !important;
     scrollbar-width: thin !important;
-    scrollbar-color: #10b981 #1f2937 !important;
+    scrollbar-color: #355747 #0d1510 !important;
     min-height: 0 !important;
     flex: 1 !important;
   }
   
-  .terminal-container::-webkit-scrollbar {
+  .terminal-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #355747 #0d1510;
+  }
+
+  .terminal-container::-webkit-scrollbar,
+  .terminal-scrollbar::-webkit-scrollbar {
     width: 8px !important;
   }
   
-  .terminal-container::-webkit-scrollbar-track {
-    background: #1f2937 !important;
+  .terminal-container::-webkit-scrollbar-track,
+  .terminal-scrollbar::-webkit-scrollbar-track {
+    background: #0d1510 !important;
     border-radius: 4px !important;
   }
   
-  .terminal-container::-webkit-scrollbar-thumb {
-    background: #10b981 !important;
+  .terminal-container::-webkit-scrollbar-thumb,
+  .terminal-scrollbar::-webkit-scrollbar-thumb {
+    background: #355747 !important;
     border-radius: 4px !important;
   }
   
-  .terminal-container::-webkit-scrollbar-thumb:hover {
-    background: #059669 !important;
+  .terminal-container::-webkit-scrollbar-thumb:hover,
+  .terminal-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #6ee7b7 !important;
   }
   
   .terminal-input {

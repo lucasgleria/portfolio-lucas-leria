@@ -1,20 +1,8 @@
-import { CommandContext } from "./types"
+export const languages = () => `Professional Language Use:
 
-export const languages = (context: CommandContext) => { 
-    return `Language Proficiency:
+English teaching:
+  • Lesson preparation, teaching materials and oral assessments.
+  • No CEFR score or completed language certification is verified in the source material.
 
-🇧🇷 Portuguese (Native)
-  • Fluent in both written and spoken communication
-  • Academic and professional experience
-
-🇺🇸 English (Advanced)
-  • C1 CEFR level 
-  • Professional working proficiency
-  • Technical documentation and presentation skills
-  • Technical english for technology.
-
-🇪🇸 Spanish (Basic)
-  • No academic background
-  • Conversational 
-  • Reading comprehension`
-}
+Portfolio interface:
+  • English and Brazilian Portuguese.`

@@ -1,4 +1,5 @@
 import { CommandContext } from "./types"
+import { portugueseCommands } from './portuguese'
 
 // import all commands
 import { about } from "./about"
@@ -32,26 +33,27 @@ export const createCommandHandlers = (context: CommandContext) => {
     about: () => about(context),
     aiProjects: () => aiProjects(context),
     articles: () => articles(context),
-    certifications: () => certifications(context),
+    certifications: () => certifications(),
     clear: () => setHistory([]),
-    contact: () => contact(context),
+    contact: () => contact(),
     date: () => date(context),
     desktopApps: () => desktopApps(context),
-    education: () => education(context),
-    experience: () => experience(context),
+    education: () => education(),
+    experience: () => experience(),
     gameProjects: () => gameProjects(context),
-    languages: () => languages(context),
+    languages: () => languages(),
     ler: (args: string[]) => ler(context, args),
     lerchat: () => lerchat(context),
     ls: () => ls(context),
     otherProjects: () => otherProjects(context),
     production: () => production(context),
     resume: () => resume(context),
-    stats: () => stats(context),
+    stats: () => stats(),
     webProjects: () => webProjects(context),
     whoami: () => whoami(context),
     help: () => help(context),
     skills: () => skills(context),
     projects: () => projects(context),
+    ...(context.language === 'pt-BR' ? portugueseCommands : {}),
   }
 }
