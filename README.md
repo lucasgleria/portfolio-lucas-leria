@@ -67,7 +67,7 @@ npm run security:framework
 npm run release:check
 ```
 
-`check` executa testes, tipos, lint sem avisos e build de prévia. Os builds não ignoram falhas de tipos ou lint; Strict Mode está ativo. O comando padrão `build` também executa o gate de segurança por `prebuild`, protegendo a publicação padrão no Vercel. `build:preview` permite revisar localmente o trabalho pendente de atualização e não aprova sua publicação. O workflow `.github/workflows/verify.yml` prepara as verificações no CI e verifica a versão de segurança do framework.
+`check` executa testes, tipos, lint sem avisos e build de prévia. Os builds não ignoram falhas de tipos ou lint; Strict Mode está ativo. O comando padrão `build` também executa o gate de segurança por `prebuild`, protegendo a publicação padrão no Vercel. `build:preview` permite revisar o artefato sem aprovar sua publicação. O workflow `.github/workflows/verify.yml` faz instalação limpa, audita dependências de produção, verifica o framework e executa `release:check`, incluindo as jornadas de navegador.
 
 Next.js e `eslint-config-next` estão fixados em **15.5.29**, com lockfile atualizado. Essa versão atende à referência de segurança revisada em 15/11/2026 ([release oficial](https://github.com/vercel/next.js/releases/tag/v15.5.29)). O CI faz instalação limpa, verifica o framework, executa testes, tipos, lint, build e jornadas de navegador antes de promover a entrega. Os avisos vigentes devem ser conferidos novamente nas próximas atualizações. Ver [política de suporte](https://nextjs.org/support-policy).
 

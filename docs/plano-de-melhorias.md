@@ -184,18 +184,18 @@ Os diagnósticos e as referências de linhas acima descrevem a revisão inicial,
 
 | Item | Situação atual | Evidência / restante |
 |---|---|---|
-| M01 | Atualização preparada; validação remota pendente | Next.js e `eslint-config-next` fixados em 15.5.29, com lockfile correspondente. O CI fará instalação limpa e repetirá as verificações. O `prebuild` continua protegendo a publicação contra versões antigas. |
-| M02 | Implementado; homologação externa pendente | Tipos estritos, lint sem avisos, build sem bypasses, lockfile e CI. Instalação limpa offline conferida sem scripts de instalação; CI remoto ainda não executado. |
+| M01 | Implementado e verificado no CI | Next.js e `eslint-config-next` fixados em 15.5.29, com lockfile correspondente. Instalação limpa, gate, testes e build aprovados no CI. O `prebuild` continua protegendo a publicação contra versões antigas. |
+| M02 | Implementado e verificado no CI | Tipos estritos, lint sem avisos, build sem bypasses, lockfile e CI. Instalação limpa completa e `release:check` aprovados no GitHub Actions. |
 | M03 | Implementado; desenvolvimento pendente de ambiente | `npm start` funciona no Windows, com servidor padrão. Servidor de echo, dependências e scripts sem uso removidos. `next dev` é bloqueado por `spawn EPERM` neste ambiente; recarga de desenvolvimento não homologada. |
 | M04 | Implementado e verificado localmente | Catálogo compartilhado, categorias na fonte, arquivo histórico explícito, contagens e contatos coerentes. |
-| M05 | Implementado e verificado por regressão unitária | Navegação do histórico e rascunho, `ler` registrado, `clear` sem resíduo e respostas associadas a IDs próprios. Teste de navegador preparado. |
+| M05 | Implementado e verificado por regressão | Navegação do histórico e rascunho, `ler` registrado, `clear` sem resíduo e respostas associadas a IDs próprios. Histórico conferido no navegador em desktop e celular. |
 | M06 | Implementado; matriz de acessibilidade pendente | Radix compartilhado, alvo de fechamento maior, estrutura móvel sem barras laterais fixas. Abertura e Escape conferidos no desktop; leitor de tela e matriz móvel não homologados. |
 | M07 | Implementado e verificado localmente | Idioma propagado ao assistente, comandos, diálogos e erros; resposta local identificada. |
 | M08 | Implementado e verificado por HTTP | Rotas diretas e HTML dos cases, metadados e domínio oficial confirmado pelo usuário, robots, sitemap e imagem social. |
 | M09 | Parcial | Prazo máximo, cancelamento, erros HTTP, limites de entrada e orçamento de IA por processo. Controle global para múltiplas instâncias continua pendente. |
 | M10 | Parcial | Cases recentes com problema, contribuição, decisões e próximo passo. Capturas/demonstrações sanitizadas e revalidação das demos externas continuam pendentes. |
 | M11 | Parcial, com redução de JS medida | Interfaces e modais sob demanda, dependências sem uso removidas. Core Web Vitals e Lighthouse não foram medidos. |
-| M12 | Suíte preparada; execução bloqueada | 16 cenários Playwright de desktop/celular reconhecidos pelo runner. Processos dos workers bloqueados por `spawn EPERM`; não são testes aprovados. |
-| M13 | Implementado; conferência externa pendente | README, Node, exemplo de configuração, scripts e tokens compartilhados revisados. |
+| M12 | Implementado e verificado no CI | 16 cenários Playwright aprovados em desktop/celular, além de 19 testes de base/API/renderização. Corrigido o retorno de foco ao campo do Terminal após fechar os diálogos. |
+| M13 | Implementado e verificado no CI | README, Node, exemplo de configuração, scripts e tokens compartilhados revisados; instalação limpa completa aprovada. |
 
-Rendller e os trabalhos excluídos pelo usuário permanecem fora da seleção. A promoção para produção depende da instalação limpa e aprovação das verificações no CI.
+Rendller e os trabalhos excluídos pelo usuário permanecem fora da seleção. A [validação remota de 15/11/2026](https://github.com/lucasgleria/portfolio-lucas-leria/actions/runs/43695769170) aprovou instalação limpa e `release:check`. Uma auditoria de dependências de produção será executada antes da promoção.

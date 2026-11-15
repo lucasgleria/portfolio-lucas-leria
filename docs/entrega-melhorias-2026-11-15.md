@@ -1,6 +1,6 @@
 # Entrega local das melhorias — 15/11/2026
 
-Situação: implementação preparada para validação remota e publicação. Next.js e `eslint-config-next` foram fixados em 15.5.29, com lockfile correspondente. A instalação completa e as jornadas de navegador serão verificadas no CI antes da promoção para produção. O andamento de cada item está no [plano](plano-de-melhorias.md).
+Situação: implementação aprovada na validação remota, aguardando auditoria das dependências de produção e promoção. Next.js e `eslint-config-next` estão fixados em 15.5.29, com lockfile correspondente. O andamento de cada item está no [plano](plano-de-melhorias.md).
 
 ## Alterações implementadas
 
@@ -16,7 +16,7 @@ Situação: implementação preparada para validação remota e publicação. Ne
 - Cliente do assistente com prazo de 12 segundos, cancelamento, mensagens de erro e limite de entrada. Provedor com prazo de 8 segundos e orçamento de 12 gerações por minuto por processo. O modo local continua disponível sem credenciais.
 - Interfaces e modais carregados sob demanda, tokens de fundo compartilhados, preferência por movimento reduzido e README atualizado.
 
-## Verificações realizadas
+## Verificações locais anteriores à atualização do framework
 
 | Verificação | Resultado |
 |---|---|
@@ -38,9 +38,22 @@ Situação: implementação preparada para validação remota e publicação. Ne
 | Desenvolvimento com `next dev` | Bloqueado por `spawn EPERM`; recarga de desenvolvimento não homologada |
 | Build padrão de publicação | Reprovado intencionalmente por `prebuild` enquanto o framework permanecer desatualizado |
 
-Os comandos de teste, tipos, lint e build foram conferidos individualmente. A execução agregada encontrou restrições de processos filhos neste ambiente e não foi contada como aprovação adicional. O workflow remoto ainda não foi executado.
+Os comandos de teste, tipos, lint e build foram conferidos individualmente. A execução agregada encontrou restrições de processos filhos neste ambiente e não foi contada como aprovação adicional. A homologação posterior no CI está registrada abaixo.
 
 O último controle do navegador foi interrompido pelo usuário com Escape; nenhuma outra interação com o computador foi realizada depois dessa interrupção.
+
+## Validação remota em 15/11/2026
+
+O [GitHub Actions](https://github.com/lucasgleria/portfolio-lucas-leria/actions/runs/43695769170) aprovou o commit `0711babb9d70ab8c2670da1a1c68fac8c2d496da` com:
+
+- Instalação limpa completa por `npm ci`, incluindo scripts.
+- Next.js 15.5.29 aprovado pelo gate de segurança.
+- 19 testes de base profissional, privacidade, API, catálogo, histórico e cliente do assistente.
+- Tipos estritos e lint sem avisos.
+- Build otimizado com o framework atualizado.
+- 16 cenários Playwright aprovados: desktop e celular, idioma, navegação, filtros, modais, histórico, assistente, erros HTTP e rotas diretas.
+
+A primeira execução identificou falha no retorno de foco do diálogo de projetos do Terminal. A correção passa a referência do campo de comando aos diálogos; a regressão também verifica artigos, perfil e chat. A prévia no Vercel foi construída com sucesso. Leitor de tela, zoom e Core Web Vitals continuam sem homologação específica.
 
 ## Redução medida
 
@@ -53,10 +66,10 @@ Redução de **21,2%** no JavaScript medido da entrada inicial. Método: soma do
 
 ## Pendências que impedem encerrar o plano
 
-1. **M01 — Homologar a atualização:** manifesto e lockfile agora fixam Next.js e `eslint-config-next` em [15.5.29](https://github.com/vercel/next.js/releases/tag/v15.5.29), usando metadados já armazenados pelo npm. Os módulos instalados no ambiente local ainda são 15.3.5; a instalação efetiva da versão corrigida será feita por `npm ci` no CI, com repetição de todas as verificações antes da promoção. O gate reprova a versão antiga e versões canary.
-2. **M06/M12 — Homologar a jornada completa:** executar os 16 cenários de navegador em ambiente que permita workers; conferir a matriz móvel, zoom, leitor de tela e retorno de foco. A inspeção desktop não substitui essa homologação.
+1. **Dependências — Auditoria pré-publicação:** a instalação limpa e a atualização do framework foram aprovadas. Os alertas emitidos pelo npm serão separados entre dependências de desenvolvimento e produção antes da promoção.
+2. **M06 — Acessibilidade complementar:** os 16 cenários automatizados, incluindo retorno de foco e viewport móvel, foram aprovados. Zoom e leitor de tela continuam pendentes de inspeção específica.
 3. **M09 — Limite global de IA:** substituir o orçamento em memória por controle compartilhado ou do provedor para múltiplas instâncias. Não foi configurada infraestrutura externa nesta tarefa.
 4. **M10/M11 — Evidências e desempenho:** preparar capturas/demonstrações com dados fictícios, revisar links externos e medir Core Web Vitals em condições definidas.
-5. **M02/M03/M13 — Homologação externa:** executar CI remoto, instalação completa com scripts e recarga de desenvolvimento fora das restrições locais.
+5. **M03 — Desenvolvimento:** a instalação completa e o servidor de produção passaram no CI; recarga de desenvolvimento continua pendente de homologação fora das restrições locais.
 
 O produto público vault-template permanece separado do vault privado. Os trabalhos excluídos pelo usuário e Rendller continuam fora da seleção. A publicação em produção depende da aprovação da validação remota.
