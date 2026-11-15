@@ -71,6 +71,8 @@ npm run release:check
 
 Next.js e `eslint-config-next` estão fixados em **15.5.29**, com lockfile atualizado. Essa versão atende à referência de segurança revisada em 15/11/2026 ([release oficial](https://github.com/vercel/next.js/releases/tag/v15.5.29)). O CI faz instalação limpa, verifica o framework, executa testes, tipos, lint, build e jornadas de navegador antes de promover a entrega. Os avisos vigentes devem ser conferidos novamente nas próximas atualizações. Ver [política de suporte](https://nextjs.org/support-policy).
 
+Os `overrides` de PostCSS **8.5.33** e Sharp **0.35.5** corrigem alertas nas dependências transitivas, preservando o Next.js 15. A compatibilidade é conferida pelo build e pelas jornadas de navegador. Rever os overrides junto das próximas atualizações do framework; o CI bloqueia vulnerabilidades de produção classificadas como altas ou críticas pelo npm.
+
 Canonical, sitemap e metadados absolutos usam o domínio oficial confirmado pelo proprietário. Para substituir esse endereço em outro ambiente, configure no build e na execução:
 
 ```dotenv

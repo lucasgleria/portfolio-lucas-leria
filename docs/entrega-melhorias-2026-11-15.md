@@ -66,7 +66,7 @@ Redução de **21,2%** no JavaScript medido da entrada inicial. Método: soma do
 
 ## Pendências que impedem encerrar o plano
 
-1. **Dependências — Auditoria pré-publicação:** a instalação limpa e a atualização do framework foram aprovadas. Os alertas emitidos pelo npm serão separados entre dependências de desenvolvimento e produção antes da promoção.
+1. **Dependências — Auditoria pré-publicação:** a instalação limpa e a atualização do framework foram aprovadas. A auditoria identificou versões transitivas vulneráveis de PostCSS e Sharp; overrides fixam 8.5.33 e 0.35.5, respectivamente. Instalação, auditoria de produção e suíte completa serão repetidas antes da promoção. Não foi usado `npm audit fix --force` nem uma migração de major do framework.
 2. **M06 — Acessibilidade complementar:** os 16 cenários automatizados, incluindo retorno de foco e viewport móvel, foram aprovados. Zoom e leitor de tela continuam pendentes de inspeção específica.
 3. **M09 — Limite global de IA:** substituir o orçamento em memória por controle compartilhado ou do provedor para múltiplas instâncias. Não foi configurada infraestrutura externa nesta tarefa.
 4. **M10/M11 — Evidências e desempenho:** preparar capturas/demonstrações com dados fictícios, revisar links externos e medir Core Web Vitals em condições definidas.
