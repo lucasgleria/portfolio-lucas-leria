@@ -320,15 +320,17 @@ export const CLI: React.FC<CLIProps> = ({ onLerMessage, language = 'en' }) => {
         setShowProductionModal={setShowProductionModal}
         productionProjects={productionProjects}
         language={language}
+        returnFocusRef={inputRef}
       />}
       {showArticlesModal && <ArticlesModal
         showArticlesModal={showArticlesModal}
         setShowArticlesModal={setShowArticlesModal}
         articles={articles}
         language={language}
+        returnFocusRef={inputRef}
       />}
-      {showResumeModal && <ResumeModal showResumeModal={showResumeModal} setShowResumeModal={setShowResumeModal} language={language} />}
-      {(showLerChatModal || chatLoaded) && <LerChatModal isOpen={showLerChatModal} onClose={() => setShowLerChatModal(false)} language={language} />}
+      {showResumeModal && <ResumeModal showResumeModal={showResumeModal} setShowResumeModal={setShowResumeModal} language={language} returnFocusRef={inputRef} />}
+      {(showLerChatModal || chatLoaded) && <LerChatModal isOpen={showLerChatModal} onClose={() => setShowLerChatModal(false)} language={language} returnFocusRef={inputRef} />}
     </div>
   )
 }

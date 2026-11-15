@@ -1,13 +1,14 @@
 'use client'
+import type { RefObject } from 'react'
 import type { Article } from '../data/articles'
 import { getArticleContent, type Language } from '@/components/portfolio/content'
 import { PortfolioDialog } from './PortfolioDialog'
 
-export function ArticlesModal({ showArticlesModal, setShowArticlesModal, articles, language = 'en' }: {
-  showArticlesModal: boolean; setShowArticlesModal: (show: boolean) => void; articles: Article[]; language?: Language
+export function ArticlesModal({ showArticlesModal, setShowArticlesModal, articles, language = 'en', returnFocusRef }: {
+  showArticlesModal: boolean; setShowArticlesModal: (show: boolean) => void; articles: Article[]; language?: Language; returnFocusRef?: RefObject<HTMLElement | null>
 }) {
   const pt = language === 'pt-BR'
-  return <PortfolioDialog open={showArticlesModal} onClose={() => setShowArticlesModal(false)} language={language} title={pt ? 'Artigos publicados' : 'Published articles'} description={pt ? 'Leitura aberta diretamente na plataforma de publicação.' : 'Read directly on the publishing platform.'}>
+  return <PortfolioDialog open={showArticlesModal} onClose={() => setShowArticlesModal(false)} language={language} returnFocusRef={returnFocusRef} title={pt ? 'Artigos publicados' : 'Published articles'} description={pt ? 'Leitura aberta diretamente na plataforma de publicação.' : 'Read directly on the publishing platform.'}>
     <div className="grid gap-5 md:grid-cols-2">{articles.map(article => {
       const content = getArticleContent(article, language)
       return <article key={article.url} className="rounded-xl border border-white/10 p-5">

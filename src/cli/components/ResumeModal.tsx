@@ -1,14 +1,15 @@
 'use client'
+import type { RefObject } from 'react'
 import { professionalProfile } from '../data/professional-profile'
 import { portfolioData } from '../data/portfolio'
 import type { Language } from '@/components/portfolio/content'
 import { PortfolioDialog } from './PortfolioDialog'
 
-export function ResumeModal({ showResumeModal, setShowResumeModal, language = 'en' }: {
-  showResumeModal: boolean; setShowResumeModal: (show: boolean) => void; language?: Language
+export function ResumeModal({ showResumeModal, setShowResumeModal, language = 'en', returnFocusRef }: {
+  showResumeModal: boolean; setShowResumeModal: (show: boolean) => void; language?: Language; returnFocusRef?: RefObject<HTMLElement | null>
 }) {
   const pt = language === 'pt-BR'
-  return <PortfolioDialog open={showResumeModal} onClose={() => setShowResumeModal(false)} language={language} title={pt ? 'Perfil profissional' : 'Professional profile'} description={professionalProfile.title[language]}>
+  return <PortfolioDialog open={showResumeModal} onClose={() => setShowResumeModal(false)} language={language} returnFocusRef={returnFocusRef} title={pt ? 'Perfil profissional' : 'Professional profile'} description={professionalProfile.title[language]}>
     <p className="text-sm leading-8 text-gray-300">{professionalProfile.summary[language]}</p>
     <h3 className="mt-7 text-base font-medium text-emerald-300">{pt ? 'Formação' : 'Education'}</h3>
     <ul className="mt-3 space-y-3 text-sm text-gray-300">{professionalProfile.education.map(item => <li key={item.institution}>{item.program[language]} — {item.institution}</li>)}</ul>

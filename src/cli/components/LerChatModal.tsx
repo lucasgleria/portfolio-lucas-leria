@@ -1,11 +1,11 @@
 'use client'
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent, type RefObject } from 'react'
 import type { Language } from '@/components/portfolio/content'
 import { askAssistant, assistantSourceLabel, type AssistantSource } from '@/lib/assistant-client'
 import { PortfolioDialog } from './PortfolioDialog'
 
 type Message = { id: number; role: 'user' | 'assistant'; content: string; source?: AssistantSource }
-export function LerChatModal({ isOpen, onClose, language = 'en' }: { isOpen: boolean; onClose: () => void; language?: Language }) {
+export function LerChatModal({ isOpen, onClose, language = 'en', returnFocusRef }: { isOpen: boolean; onClose: () => void; language?: Language; returnFocusRef?: RefObject<HTMLElement | null> }) {
   const pt = language === 'pt-BR'
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -33,7 +33,7 @@ export function LerChatModal({ isOpen, onClose, language = 'en' }: { isOpen: boo
       if (!controller.signal.aborted) setMessages(previous => [...previous, { id: ++nextId.current, role: 'assistant', content: error instanceof Error ? error.message : (pt ? 'Não foi possível responder.' : 'Unable to respond.') }])
     } finally { if (!controller.signal.aborted) setLoading(false) }
   }
-  return <PortfolioDialog open={isOpen} onClose={onClose} language={language} title={pt ? 'Converse com Ler' : 'Chat with Ler'} description={pt ? 'Pergunte sobre projetos, tecnologias e trajetória profissional.' : 'Ask about projects, technologies and professional background.'}>
+  return <PortfolioDialog open={isOpen} onClose={onClose} language={language} returnFocusRef={returnFocusRef} title={pt ? 'Converse com Ler' : 'Chat with Ler'} description={pt ? 'Pergunte sobre projetos, tecnologias e trajetória profissional.' : 'Ask about projects, technologies and professional background.'}>
     <div role="log" aria-label={pt ? 'Conversa' : 'Conversation'} aria-live="polite" className="max-h-[45dvh] space-y-4 overflow-y-auto">
       {!messages.length && <p className="text-sm leading-7 text-gray-300">{pt ? 'Posso apresentar os trabalhos documentados, a formação e os estudos atuais do Lucas.' : 'I can describe Lucas’s documented work, education and current studies.'}</p>}
       {messages.map(message => <div key={message.id} className="rounded-xl border border-white/10 p-4">

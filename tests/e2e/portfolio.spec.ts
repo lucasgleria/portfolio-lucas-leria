@@ -70,6 +70,13 @@ test('Terminal project dialog and nested details return focus to the command inp
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(input).toBeFocused()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true)
+  for (const command of ['articles', 'resume', 'lerchat']) {
+    await runCommand(page, command)
+    await expect(dialog).toBeVisible()
+    await dialog.getByRole('button', { name: 'Fechar janela', exact: true }).click()
+    await expect(dialog).toHaveCount(0)
+    await expect(input).toBeFocused()
+  }
 })
 
 test('assistant receives the selected locale and identifies a local answer', async ({ page }) => {

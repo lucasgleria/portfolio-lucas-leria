@@ -1,13 +1,13 @@
 'use client'
 
-import { useRef, type ReactNode } from 'react'
+import { useRef, type ReactNode, type RefObject } from 'react'
 import { X } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import type { Language } from '@/components/portfolio/content'
 
-export function PortfolioDialog({ open, onClose, title, description, language, children }: {
-  open: boolean; onClose: () => void; title: string; description: string; language: Language; children: ReactNode
+export function PortfolioDialog({ open, onClose, title, description, language, children, returnFocusRef }: {
+  open: boolean; onClose: () => void; title: string; description: string; language: Language; children: ReactNode; returnFocusRef?: RefObject<HTMLElement | null>
 }) {
   const returnFocus = useRef<HTMLElement | null>(null)
   return (
@@ -17,7 +17,11 @@ export function PortfolioDialog({ open, onClose, title, description, language, c
         showCloseButton={false}
         className="flex max-h-[90dvh] flex-col overflow-hidden border-white/15 bg-portfolio-surface p-0 text-gray-100 sm:max-w-5xl"
         onOpenAutoFocus={() => { returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null }}
-        onCloseAutoFocus={event => { event.preventDefault(); if (returnFocus.current?.isConnected) returnFocus.current.focus() }}
+        onCloseAutoFocus={event => {
+          event.preventDefault()
+          const target = returnFocusRef?.current ?? returnFocus.current
+          if (target?.isConnected) target.focus()
+        }}
       >
         <header className="border-b border-white/10 p-5 pr-20 sm:p-6 sm:pr-20">
           <DialogTitle className="text-xl leading-7">{title}</DialogTitle>
