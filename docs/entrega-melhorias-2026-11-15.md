@@ -1,6 +1,6 @@
-# Entrega local das melhorias — 15/11/2026
+# Entrega das melhorias — 15/11/2026
 
-Situação: implementação aprovada na validação remota, aguardando auditoria das dependências de produção e promoção. Next.js e `eslint-config-next` estão fixados em 15.5.29, com lockfile correspondente. O andamento de cada item está no [plano](plano-de-melhorias.md).
+Situação conferida em 17/11/2026: implementação e dependências de produção aprovadas na validação remota. Next.js e `eslint-config-next` estão fixados em 15.5.29, com lockfile correspondente. O domínio de publicação é [portfolio-lucas-leria.vercel.app](https://portfolio-lucas-leria.vercel.app/), conectado à branch `main` pelo Vercel. O andamento de cada item está no [plano](plano-de-melhorias.md).
 
 ## Alterações implementadas
 
@@ -44,9 +44,10 @@ O último controle do navegador foi interrompido pelo usuário com Escape; nenhu
 
 ## Validação remota em 15/11/2026
 
-O [GitHub Actions](https://github.com/lucasgleria/portfolio-lucas-leria/actions/runs/43695769170) aprovou o commit `0711babb9d70ab8c2670da1a1c68fac8c2d496da` com:
+O [GitHub Actions](https://github.com/lucasgleria/portfolio-lucas-leria/actions/runs/43696484370) aprovou o conjunto final, commit `cbf2d6dbf03cfd61e565c0ff16c826e2430b47fb`, com:
 
 - Instalação limpa completa por `npm ci`, incluindo scripts.
+- `npm audit --omit=dev --audit-level=high`: **zero vulnerabilidades nas dependências de produção**.
 - Next.js 15.5.29 aprovado pelo gate de segurança.
 - 19 testes de base profissional, privacidade, API, catálogo, histórico e cliente do assistente.
 - Tipos estritos e lint sem avisos.
@@ -54,6 +55,8 @@ O [GitHub Actions](https://github.com/lucasgleria/portfolio-lucas-leria/actions/
 - 16 cenários Playwright aprovados: desktop e celular, idioma, navegação, filtros, modais, histórico, assistente, erros HTTP e rotas diretas.
 
 A primeira execução identificou falha no retorno de foco do diálogo de projetos do Terminal. A correção passa a referência do campo de comando aos diálogos; a regressão também verifica artigos, perfil e chat. A prévia no Vercel foi construída com sucesso. Leitor de tela, zoom e Core Web Vitals continuam sem homologação específica.
+
+A auditoria levou à fixação de PostCSS 8.5.33 e Sharp 0.35.5 por overrides, preservando o Next.js 15. O lockfile inclui o runtime opcional de WebAssembly do Sharp, conferido pela instalação limpa no Linux. As seis ocorrências moderadas restantes na auditoria completa pertencem às dependências de desenvolvimento e continuam como manutenção separada; não estão incluídas no resultado da auditoria de produção.
 
 ## Redução medida
 
@@ -66,10 +69,10 @@ Redução de **21,2%** no JavaScript medido da entrada inicial. Método: soma do
 
 ## Pendências que impedem encerrar o plano
 
-1. **Dependências — Auditoria pré-publicação:** a instalação limpa e a atualização do framework foram aprovadas. A auditoria identificou versões transitivas vulneráveis de PostCSS e Sharp; overrides fixam 8.5.33 e 0.35.5, respectivamente. Instalação, auditoria de produção e suíte completa serão repetidas antes da promoção. Não foi usado `npm audit fix --force` nem uma migração de major do framework.
+1. **Dependências de desenvolvimento:** revisar as seis ocorrências moderadas da auditoria completa. A auditoria de produção está aprovada; manter a verificação no CI e revisar os overrides junto das próximas atualizações do framework.
 2. **M06 — Acessibilidade complementar:** os 16 cenários automatizados, incluindo retorno de foco e viewport móvel, foram aprovados. Zoom e leitor de tela continuam pendentes de inspeção específica.
 3. **M09 — Limite global de IA:** substituir o orçamento em memória por controle compartilhado ou do provedor para múltiplas instâncias. Não foi configurada infraestrutura externa nesta tarefa.
 4. **M10/M11 — Evidências e desempenho:** preparar capturas/demonstrações com dados fictícios, revisar links externos e medir Core Web Vitals em condições definidas.
 5. **M03 — Desenvolvimento:** a instalação completa e o servidor de produção passaram no CI; recarga de desenvolvimento continua pendente de homologação fora das restrições locais.
 
-O produto público vault-template permanece separado do vault privado. Os trabalhos excluídos pelo usuário e Rendller continuam fora da seleção. A publicação em produção depende da aprovação da validação remota.
+O produto público vault-template permanece separado do vault privado. Os trabalhos excluídos pelo usuário e Rendller continuam fora da seleção. Credenciais, arquivos temporários e relatórios privados de auditoria não integram a entrega.

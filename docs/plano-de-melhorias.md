@@ -178,7 +178,7 @@ P0: corrigir antes de uma nova publicação. P1: confiabilidade e jornada princi
 
 Registrar o ID do item atendido, arquivos alterados, critérios de aceite cumpridos, verificações executadas e limitações remanescentes. Conferir o escopo do diff. Publicar apenas o conjunto validado; não marcar itens deste plano como concluídos somente por estarem descritos ou parcialmente implementados.
 
-## Execução local em 15/11/2026
+## Execução em 15/11/2026, revisada em 17/11/2026
 
 Os diagnósticos e as referências de linhas acima descrevem a revisão inicial, não o código após a implementação.
 
@@ -189,7 +189,7 @@ Os diagnósticos e as referências de linhas acima descrevem a revisão inicial,
 | M03 | Implementado; desenvolvimento pendente de ambiente | `npm start` funciona no Windows, com servidor padrão. Servidor de echo, dependências e scripts sem uso removidos. `next dev` é bloqueado por `spawn EPERM` neste ambiente; recarga de desenvolvimento não homologada. |
 | M04 | Implementado e verificado localmente | Catálogo compartilhado, categorias na fonte, arquivo histórico explícito, contagens e contatos coerentes. |
 | M05 | Implementado e verificado por regressão | Navegação do histórico e rascunho, `ler` registrado, `clear` sem resíduo e respostas associadas a IDs próprios. Histórico conferido no navegador em desktop e celular. |
-| M06 | Implementado; matriz de acessibilidade pendente | Radix compartilhado, alvo de fechamento maior, estrutura móvel sem barras laterais fixas. Abertura e Escape conferidos no desktop; leitor de tela e matriz móvel não homologados. |
+| M06 | Implementado; acessibilidade complementar pendente | Radix compartilhado, alvo de fechamento maior e estrutura móvel sem barras laterais fixas. Abertura, Escape, retorno de foco e viewport móvel aprovados no CI; zoom e leitor de tela ainda sem inspeção específica. |
 | M07 | Implementado e verificado localmente | Idioma propagado ao assistente, comandos, diálogos e erros; resposta local identificada. |
 | M08 | Implementado e verificado por HTTP | Rotas diretas e HTML dos cases, metadados e domínio oficial confirmado pelo usuário, robots, sitemap e imagem social. |
 | M09 | Parcial | Prazo máximo, cancelamento, erros HTTP, limites de entrada e orçamento de IA por processo. Controle global para múltiplas instâncias continua pendente. |
@@ -198,4 +198,4 @@ Os diagnósticos e as referências de linhas acima descrevem a revisão inicial,
 | M12 | Implementado e verificado no CI | 16 cenários Playwright aprovados em desktop/celular, além de 19 testes de base/API/renderização. Corrigido o retorno de foco ao campo do Terminal após fechar os diálogos. |
 | M13 | Implementado e verificado no CI | README, Node, exemplo de configuração, scripts e tokens compartilhados revisados; instalação limpa completa aprovada. |
 
-Rendller e os trabalhos excluídos pelo usuário permanecem fora da seleção. A [validação remota de 15/11/2026](https://github.com/lucasgleria/portfolio-lucas-leria/actions/runs/43695769170) aprovou instalação limpa e `release:check`. Uma auditoria de dependências de produção será executada antes da promoção.
+Rendller e os trabalhos excluídos pelo usuário permanecem fora da seleção. A [validação final](https://github.com/lucasgleria/portfolio-lucas-leria/actions/runs/43696484370), conferida em 17/11/2026, aprovou instalação limpa, `release:check` e auditoria com zero vulnerabilidades nas dependências de produção. PostCSS 8.5.33 e Sharp 0.35.5 são fixados por overrides; seis ocorrências moderadas nas dependências de desenvolvimento permanecem como manutenção separada.
