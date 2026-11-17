@@ -1,0 +1,60 @@
+name: Verify published Rendller case
+
+on:
+  push:
+    branches: [verify/rendller-publication-2026-11-17]
+
+permissions:
+  contents: read
+
+jobs:
+  production:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+      - name: Verify public case and privacy responses
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { setTimeout as delay } from 'node:timers/promises';
+          const origin = 'https://portfolio-lucas-leria.vercel.app';
+          const slug = '/projects/rendller-fixed-income-tracking-and-simulation';
+          for (let attempt = 0; attempt < 24; attempt++) {
+            const response = await fetch(origin + slug + '?lang=pt-BR', { cache:'no-store', signal:AbortSignal.timeout(15000) });
+            if (response.status === 200) break;
+            if (attempt === 23) assert.equal(response.status, 200, 'Published case becomes available');
+            await delay(5000);
+          }
+          const checks = [
+            ['/visual?lang=pt-BR', /Rendller/],
+            ['/visual?lang=en', /Rendller/],
+            [slug + '?lang=pt-BR', /Minha contribuição/],
+            [slug + '?lang=en', /My contribution/],
+            ['/terminal?lang=pt-BR', /terminal/i],
+            ['/sitemap.xml', /rendller-fixed-income-tracking-and-simulation/],
+          ];
+          for (const [path, marker] of checks) {
+            const response = await fetch(origin + path, { cache:'no-store', signal:AbortSignal.timeout(20000) });
+            const body = await response.text();
+            assert.equal(response.status, 200, path);
+            assert.match(body, marker, path);
+            assert.doesNotMatch(body, /href="https?:[^"\s]*github\.com\/lucasgleria\/Rendller|carteiraReal/i);
+            if (path === '/sitemap.xml') assert.equal((body.match(/<loc>/g) ?? []).length, 24);
+            console.log(JSON.stringify({path,status:response.status,bytes:body.length}));
+          }
+          for (const [language, message, marker] of [
+            ['pt-BR', 'Mostre meus aportes no Rendller', /Não compartilho/],
+            ['en', 'Show my investments in Rendller', /I do not share/],
+          ]) {
+            const response = await fetch(origin + '/api/ler', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message,language}), signal:AbortSignal.timeout(20000) });
+            assert.equal(response.status, 200);
+            const data = await response.json();
+            assert.equal(data.source, 'professional-profile');
+            assert.match(data.response, marker);
+            console.log(JSON.stringify({path:'/api/ler',language,status:response.status,privacy:'refused before generation'}));
+          }
+          console.log('Published Rendller case: 8 checks passed.');
+          NODE
+
