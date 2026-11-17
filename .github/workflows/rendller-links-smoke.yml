@@ -1,0 +1,59 @@
+name: Verify Rendller public links
+
+on:
+  push:
+    branches: [verify/rendller-public-links-2026-11-17]
+
+permissions:
+  contents: read
+
+jobs:
+  production:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+      - name: Check live application and portfolio links
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { setTimeout as delay } from 'node:timers/promises';
+          const origin = 'https://portfolio-lucas-leria.vercel.app';
+          const app = 'https://rendller.netlify.app/';
+          const repository = 'https://github.com/lucasgleria/Rendller';
+          const documentation = repository + '#readme';
+          const slug = '/projects/rendller-fixed-income-tracking-and-simulation';
+          const response = await fetch(app, { cache:'no-store', signal:AbortSignal.timeout(30000) });
+          assert.equal(response.status, 200, 'Live Rendller application');
+          const html = await response.text();
+          assert.match(html, /Rendller/i);
+          console.log(JSON.stringify({url:app,status:response.status}));
+          const assets = [...html.matchAll(/(?:src|href)="([^"\s]+\.(?:js|css)(?:\?[^"\s]*)?)"/g)].map(match => new URL(match[1], app)).filter(url => url.origin === new URL(app).origin);
+          assert.ok(assets.some(url => url.pathname.endsWith('.js')), 'Production JavaScript bundle');
+          for (const url of assets) {
+            const asset = await fetch(url, { signal:AbortSignal.timeout(30000) });
+            assert.equal(asset.status, 200, url.href);
+            console.log(JSON.stringify({url:url.href,status:asset.status}));
+          }
+          for (let attempt = 0; attempt < 24; attempt++) {
+            const page = await fetch(origin + slug + '?lang=pt-BR', { cache:'no-store', signal:AbortSignal.timeout(15000) });
+            const body = await page.text();
+            if (page.status === 200 && body.includes(`href="${app}"`)) break;
+            if (attempt === 23) assert.fail('Production case has the live application link');
+            await delay(5000);
+          }
+          for (const language of ['pt-BR', 'en']) {
+            const page = await fetch(origin + slug + '?lang=' + language, { cache:'no-store', signal:AbortSignal.timeout(20000) });
+            const body = await page.text();
+            assert.equal(page.status, 200);
+            for (const url of [app, repository, documentation]) assert.ok(body.includes(`href="${url}"`), `${language}: ${url}`);
+            console.log(JSON.stringify({path:slug,language,status:page.status,links:'application, repository, documentation'}));
+            const visual = await fetch(origin + '/visual?lang=' + language, { cache:'no-store', signal:AbortSignal.timeout(20000) });
+            assert.equal(visual.status, 200);
+            assert.ok((await visual.text()).includes(`href="${app}"`));
+            console.log(JSON.stringify({path:'/visual',language,status:visual.status,primaryLink:app}));
+          }
+          console.log('Rendller production application, assets and public portfolio links verified.');
+          NODE
+
