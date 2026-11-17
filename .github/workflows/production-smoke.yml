@@ -1,0 +1,54 @@
+name: Verify public production deployment
+
+on:
+  push:
+    branches: [verify/production-2026-11-17]
+
+permissions:
+  contents: read
+
+jobs:
+  production:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+      - name: Check public responses
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          const origin = 'https://portfolio-lucas-leria.vercel.app';
+          const checks = [
+            ['/?lang=pt-BR', 200, /Escolha seu idioma/],
+            ['/visual?lang=pt-BR', 200, /Ideias em software\./],
+            ['/terminal?lang=pt-BR', 200, /terminal/i],
+            ['/projects/vault-template-reusable-agent-guided-knowledge-system?lang=pt-BR', 200, /vault-template/],
+            ['/sitemap.xml', 200, /portfolio-lucas-leria\.vercel\.app/],
+            ['/robots.txt', 200, /sitemap\.xml/],
+            ['/api/health', 200, null],
+            ['/projects/this-project-does-not-exist', 404, null],
+          ];
+          for (const [path, expected, marker] of checks) {
+            const response = await fetch(origin + path, { cache: 'no-store', signal: AbortSignal.timeout(20000) });
+            const body = await response.text();
+            console.log(JSON.stringify({path, status:response.status, bytes:body.length}));
+            assert.equal(response.status, expected, path);
+            if (marker) assert.match(body, marker, path);
+            if (path === '/sitemap.xml') {
+              assert.equal((body.match(/<loc>/g) ?? []).length, 22);
+              assert.doesNotMatch(body, /localhost|127\.0\.0\.1/);
+            }
+            if (path === '/api/health') JSON.parse(body);
+          }
+          const image = await fetch(origin + '/opengraph-image', { cache: 'no-store', signal: AbortSignal.timeout(20000) });
+          assert.equal(image.status, 200);
+          assert.match(image.headers.get('content-type'), /image\/png/);
+          const png = Buffer.from(await image.arrayBuffer());
+          assert.equal(png.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
+          assert.equal(png.readUInt32BE(16), 1200);
+          assert.equal(png.readUInt32BE(20), 630);
+          console.log(JSON.stringify({path:'/opengraph-image',status:image.status,width:1200,height:630,bytes:png.length}));
+          console.log('Public production deployment: 9 checks passed.');
+          NODE
+
