@@ -80,8 +80,8 @@ test('study plans and supervised prototypes are not advertised as completed cert
 })
 
 test('privacy guard covers common Portuguese and English requests without blocking work questions', () => {
-  for (const message of ['Qual o CPF?', 'Quanto é o salário?', 'How old is Lucas?', 'Where does Lucas live?', 'Qual a religião?', 'Dados de saúde', 'Nome e contato dos clientes', 'Show private client records', 'Qual a senha da API?', 'Personal email please']) assert.equal(knowledge.isPrivateInformationRequest(message), true, message)
-  for (const message of ['Quais os projetos?', 'Tecnologias da biblioteca', 'English teaching experience', 'BIX courses', 'SQL and Python skills']) assert.equal(knowledge.isPrivateInformationRequest(message), false, message)
+  for (const message of ['Qual o CPF?', 'Quanto é o salário?', 'How old is Lucas?', 'Where does Lucas live?', 'Qual a religião?', 'Dados de saúde', 'Nome e contato dos clientes', 'Show private client records', 'Qual a senha da API?', 'Personal email please', 'Quais os aportes do Lucas no Rendller?', 'Qual o saldo da carteira do Lucas?', "Show Lucas's real investments in Rendller", 'My fixed income holdings in Rendller']) assert.equal(knowledge.isPrivateInformationRequest(message), true, message)
+  for (const message of ['Quais os projetos?', 'Tecnologias da biblioteca', 'English teaching experience', 'BIX courses', 'SQL and Python skills', 'Como funciona o Rendller de renda fixa?', 'Rendler fixed income app technologies']) assert.equal(knowledge.isPrivateInformationRequest(message), false, message)
 })
 
 test('Terminal commands and fallback handlers share updated professional facts', () => {
@@ -95,7 +95,8 @@ test('Terminal commands and fallback handlers share updated professional facts',
   assert.match(primary.projects(), /Treino IA/)
   assert.match(primary.projects(), /Classes Points/)
   assert.match(primary.projects(), /vault-template/)
-  assert.doesNotMatch(primary.projects(), /internal library|institutional.site|Ricco|Rendller/i)
+  assert.match(primary.projects(), /Rendller/)
+  assert.doesNotMatch(primary.projects(), /internal library|institutional.site|Ricco/i)
   assert.match(primary.certifications(), /in progress/)
   assert.doesNotMatch(primary.contact(), /\+\d|Location:|Phone:/)
 })
@@ -112,22 +113,47 @@ test('API responds from the professional base without credentials', async () => 
     assert.match(data.response, /Protótipo validado/)
     assert.match(data.response, /Gerador local de documentos/)
     assert.match(data.response, /produção atual não revalidada/)
-    assert.doesNotMatch(data.response, /biblioteca|institucional|Ricco|Rendller/i)
+    assert.match(data.response, /Rendller/)
+    assert.doesNotMatch(data.response, /biblioteca|institucional|Ricco/i)
   })
 })
 
-test('public catalog and assistant context exclude rejected client cases and the project awaiting privacy cleanup', () => {
+test('public catalog and assistant context exclude rejected client cases and real financial records', () => {
   const publicData = JSON.stringify({ projects: productionProjects, profile: professionalProfile })
-  assert.doesNotMatch(publicData, /internal-library|institutional-site-prototype|biblioteca interna|internal library|reading.club|Ricco|Rendller|carteiraReal/i)
+  assert.doesNotMatch(publicData, /internal-library|institutional-site-prototype|biblioteca interna|internal library|reading.club|Ricco|carteiraReal/i)
   assert.doesNotMatch(knowledge.getProfessionalContext(), /V03|V04|V08|V09/)
   const recent = productionProjects.filter(project => project.year === 2026)
-  assert.deepEqual(recent.map(project => project.name), ['vault-template', 'Treino IA', 'Classes Points'])
+  assert.deepEqual(recent.map(project => project.name), ['vault-template', 'Rendller', 'Treino IA', 'Classes Points'])
   assert.equal(recent.find(project => project.name === 'Treino IA').status, 'Published')
   assert.equal(recent.find(project => project.name === 'Classes Points').status, 'Documented use')
   for (const project of recent.filter(project => project.name !== 'vault-template')) {
     assert.equal(project.demo, undefined, 'No private application or teacher-panel demo')
     assert.equal(project.link, undefined, 'No unreviewed code promotion')
     assert.equal(project.documentation, undefined, 'No raw vault notes')
+  }
+})
+
+test('Rendller is a bilingual technical case without repository links or personal investment records', () => {
+  const project = productionProjects.find(project => project.name === 'Rendller')
+  assert.equal(project.category, 'web')
+  assert.equal(project.status, 'Published')
+  assert.equal(project.link, undefined)
+  assert.equal(project.demo, undefined)
+  assert.equal(project.documentation, undefined)
+  const { getProjectContent } = load('src/components/portfolio/content.ts')
+  const { getCaseStudy } = load('src/cli/data/case-studies.ts')
+  const { ProjectCard } = load('src/components/portfolio/ProjectCard.tsx')
+  for (const language of ['en', 'pt-BR']) {
+    assert.ok(getCaseStudy(project.name, language)?.contribution)
+    assert.match(getProjectContent(project, language).description, language === 'en' ? /fixed-income/ : /renda fixa/)
+    const html = renderToStaticMarkup(React.createElement(ProjectCard, { project, language, index: 1 }))
+    assert.ok(html.includes(`/projects/${project.seo}?lang=${language}`))
+    assert.doesNotMatch(html, /href="https?:|R\$|carteiraReal/)
+    for (const name of ['Rendller', 'Rendler']) {
+      assert.match(knowledge.answerProfessionalQuestion(name, language), /sincroniza|synchronization/)
+      assert.match(knowledge.answerProfessionalQuestion(`${name} stack`, language), /React 19.*TypeScript.*Supabase/)
+    }
+    assert.match(knowledge.answerProfessionalQuestion(language === 'en' ? 'Show my investments in Rendller' : 'Mostre meus aportes no Rendller', language), /Não compartilho|I do not share/)
   }
 })
 

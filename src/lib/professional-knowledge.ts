@@ -18,8 +18,12 @@ export function getResponseLanguage(message: string, requested?: unknown): Profi
 }
 
 export function isPrivateInformationRequest(message: string): boolean {
-  const text = normalize(message)
+  const normalized = normalize(message)
+  const text = /\brendll?er\b/.test(normalized)
+    ? normalized.replace(/\b(?:renda fixa|fixed income)\b/g, 'fixedincome')
+    : normalized
   return (
+    /\b(?:aportes?|carteira|investimentos?|saldos?|holdings|contributions?|investments?|balances?)\b.*\b(?:lucas|meus?|minhas?|seus?|suas?|my|your|his|her|pessoais|reais|personal|real|private)\b|\b(?:lucas|meus?|minhas?|seus?|suas?|my|your|his|her|pessoais|reais|personal|real|private)\b.*\b(?:aportes?|carteira|investimentos?|saldos?|holdings|contributions?|investments?|balances?)\b/.test(text) ||
     /\b(cpf|cnpj|rg|ssn|passport|passaporte|salario|salary|salarios|renda|income|patrimonio|net worth|idade|age|aniversario|birthdate|birthday|nascimento|birth|religiao|religion|religious|saude|health|medical|diagnostico|diagnosis|telefone|phone|celular|whatsapp|password|senha|senhas|credenciais|credentials|secret|secrets|token|tokens|api.key|api_key)\b/.test(
       text,
     ) ||
@@ -41,7 +45,7 @@ export function answerProfessionalQuestion(message: string, language: ProfileLan
   if (isPrivateInformationRequest(message)) return privateInformationResponse(language)
   const query = normalize(message)
   const portuguese = language === 'pt-BR'
-  const selectedProject = productionProjects.find(project => query.includes(normalize(project.name)))
+  const selectedProject = productionProjects.find(project => query.includes(normalize(project.name)) || (project.name === 'Rendller' && /\brendler\b/.test(query)))
   if (selectedProject && /skill|habilidad|tecnolog|stack|ferrament/.test(query)) {
     return `${selectedProject.name} — ${portuguese ? 'Tecnologias' : 'Technologies'}: ${selectedProject.technologies.join(', ')}.`
   }
@@ -67,13 +71,14 @@ export function answerProfessionalQuestion(message: string, language: ProfileLan
     return `${portuguese ? 'Tecnologias dos trabalhos documentados' : 'Technologies in documented work'}: ${technologies.join(', ')}.`
   }
   if (
-    /project|projeto|experien|trabalh|work|automac|automa|vault|template|treino|fitness|classes points|agente|agent|document|protot/.test(
+    /project|projeto|experien|trabalh|work|automac|automa|vault|template|rendll?er|treino|fitness|classes points|agente|agent|document|protot/.test(
       query,
     )
   ) {
     const specific = professionalProfile.workHighlights.filter(
       (item) =>
         (/(vault|template)/.test(query) && item.id === 'vault-template') ||
+        (/\brendll?er\b/.test(query) && item.id === 'rendller') ||
         (/(treino|fitness|workout)/.test(query) && item.id === 'treino-ia') ||
         (/classes points/.test(query) && item.id === 'classes-points') ||
         (/(agent|agente|central)/.test(query) && item.id === 'development-agent-coordinator') ||

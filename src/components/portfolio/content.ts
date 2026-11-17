@@ -187,6 +187,24 @@ const portugueseProjects: Record<
     publicationNote:
       'Publicado como repositório reutilizável sob licença MIT. O funcionamento depende do acesso a arquivos e do suporte a instruções de projeto pelo agente escolhido.',
   },
+  'Rendller': {
+    description:
+      'Aplicação web para acompanhar investimentos bancários de renda fixa e comparar cenários. Combina motor de cálculo configurável, visões de vencimento e liquidez, persistência local e sincronização cifrada opcional por conta.',
+    role: 'Desenvolvedor Full Stack',
+    features: [
+      'Lotes de investimento, resgates parciais, vencimentos e concentração por instituição',
+      'Simulações lado a lado com premissas configuráveis de impostos e rentabilidade',
+      'Cálculos em dias úteis com histórico público do CDI e calendário de feriados',
+      'Persistência no navegador, backup JSON e importação de planilha',
+      'Sincronização cifrada opcional com acesso por conta no Supabase',
+    ],
+    results: [
+      'Publicação no Netlify documentada no README do projeto',
+      'Testes de cálculo, migração e sincronização disponíveis no projeto de origem',
+    ],
+    publicationNote:
+      'Case técnico de uma aplicação publicada. Projeções são estimativas; esta apresentação não contém registros financeiros reais. Os fluxos atuais da versão hospedada não foram revalidados.',
+  },
   'Treino IA': {
     description:
       'PWA para planejar treinos, registrar sessões e consultar um Coach IA cujas propostas exigem aceite. Combina planejamento determinístico, armazenamento offline e sincronização por conta.',

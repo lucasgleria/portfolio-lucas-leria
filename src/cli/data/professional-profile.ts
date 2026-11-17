@@ -3,7 +3,7 @@ type LocalizedText = Record<ProfileLanguage, string>
 
 // Curated professional facts only. Raw vault notes never belong in this module.
 export const professionalProfile = {
-  reviewedAt: '2026-11-14',
+  reviewedAt: '2026-11-17',
   title: {
     en: 'Full-stack Development | Automation | Databases',
     'pt-BR': 'Desenvolvimento Full Stack | Automação | Bancos de Dados',
@@ -14,9 +14,9 @@ export const professionalProfile = {
       'Sou Lucas, desenvolvedor com graduação em Banco de Dados. Desenvolvo aplicações web e ferramentas de automação, com atuação em comércio exterior e desenvolvimento freelance.',
   },
   summary: {
-    en: 'Developer with a degree in databases from Estácio de Sá and technical training in IT from ENIAC. My professional work includes freelance web development and foreign-trade operations. Recent products and technical cases include the public, reusable vault-template repository, Treino IA, a PWA with a documented published implementation, and Classes Points, with documented classroom use. I also develop local tools, including a supervised development-agent prototype and a document generator. I teach English and prepare learning materials. My current studies follow the BIX Technology track in data analysis and business intelligence; this is ongoing training, not a completed certification.',
+    en: 'Developer with a degree in databases from Estácio de Sá and technical training in IT from ENIAC. My professional work includes freelance web development and foreign-trade operations. Recent products and technical cases include the public, reusable vault-template repository, Rendller, a fixed-income tracking and simulation application, Treino IA, a PWA with a documented published implementation, and Classes Points, with documented classroom use. I also develop local tools, including a supervised development-agent prototype and a document generator. I teach English and prepare learning materials. My current studies follow the BIX Technology track in data analysis and business intelligence; this is ongoing training, not a completed certification.',
     'pt-BR':
-      'Desenvolvedor graduado em Banco de Dados pela Estácio de Sá, com formação técnica em TI pelo ENIAC. Minha atuação profissional inclui desenvolvimento web freelance e operações de comércio exterior. Os produtos e cases recentes incluem o repositório público e reutilizável vault-template, Treino IA, PWA com implementação publicada documentada, e Classes Points, com uso docente documentado. Também desenvolvo ferramentas locais, como um protótipo supervisionado de central de agentes e um gerador de documentos. Atuo no ensino de inglês e na preparação de materiais didáticos. Atualmente estudo análise de dados e Business Intelligence na trilha BIX Technology; trata-se de formação em andamento, não de certificação concluída.',
+      'Desenvolvedor graduado em Banco de Dados pela Estácio de Sá, com formação técnica em TI pelo ENIAC. Minha atuação profissional inclui desenvolvimento web freelance e operações de comércio exterior. Os produtos e cases recentes incluem o repositório público e reutilizável vault-template, Rendller, aplicação para controle e simulação de renda fixa, Treino IA, PWA com implementação publicada documentada, e Classes Points, com uso docente documentado. Também desenvolvo ferramentas locais, como um protótipo supervisionado de central de agentes e um gerador de documentos. Atuo no ensino de inglês e na preparação de materiais didáticos. Atualmente estudo análise de dados e Business Intelligence na trilha BIX Technology; trata-se de formação em andamento, não de certificação concluída.',
   },
   roles: [
     {
@@ -89,6 +89,20 @@ export const professionalProfile = {
       },
       technologies: ['Markdown', 'JSON Schema', 'Python', 'Git'],
       sourceIds: ['P01', 'P02'],
+    },
+    {
+      id: 'rendller',
+      title: { en: 'Rendller', 'pt-BR': 'Rendller' },
+      status: {
+        en: 'Published implementation documented; current production not revalidated',
+        'pt-BR': 'Implementação publicada documentada; produção atual não revalidada',
+      },
+      summary: {
+        en: 'Fixed-income tracking and simulation application with a configurable calculation engine, liquidity and maturity views, local browser storage, backups and optional encrypted synchronization. This technical case includes no real financial records or external repository links.',
+        'pt-BR': 'Aplicação para controle e simulação de renda fixa, com motor de cálculo configurável, visões de liquidez e vencimentos, armazenamento no navegador, backups e sincronização cifrada opcional. O case técnico não inclui registros financeiros reais nem links externos para o repositório.',
+      },
+      technologies: ['React 19', 'TypeScript', 'Vite', 'Supabase', 'Netlify', 'Recharts', 'Web Crypto'],
+      sourceIds: ['P03', 'P04'],
     },
     {
       id: 'treino-ia',

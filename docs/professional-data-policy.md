@@ -35,6 +35,8 @@ O produto `vault-template` foi verificado diretamente no repositório **público
 |---|---|---|
 | P01 | README do vault-template: configuração, portabilidade e continuidade | `c358548acd78577af4a0bafcd786e4bec8be2904` |
 | P02 | Licença MIT do vault-template | `fec99b4370e24cb8814e75c127a2fb2ef8c6a244` |
+| P03 | README atual do Rendller: finalidade, arquitetura e funcionalidades; revisão incremental em 17/11/2026 | `0a060acc1a1462a54b95a6d534aab50bd32f55ed` |
+| P04 | Manifesto do Rendller: stack e scripts | `1d05e110c470cd34ebc90142eb20ee90dcfa0662` |
 
 ## Distinções preservadas
 
@@ -43,6 +45,7 @@ O produto `vault-template` foi verificado diretamente no repositório **público
 - vault-template: produto publicado como repositório público reutilizável, com licença MIT. Não precisa de aplicação hospedada para ser distribuído. A operação depende das capacidades de acesso a arquivos e das instruções de projeto do agente escolhido.
 - Treino IA: implementação publicada documentada em outubro de 2026; sem afirmar validação atual dos fluxos de produção ou entrega de Web Push. Repositório privado e nenhum registro real importado.
 - Classes Points: uso docente documentado em outubro de 2026; sem afirmar implantação atual verificada, ranking combinado em uso ou PDF finalizado. Painel docente e registros reais não são vinculados ao case.
+- Rendller: incluído por solicitação de 17/11/2026 como case técnico de aplicação com publicação documentada. Apenas finalidade, stack e fluxos de software; sem registros financeiros, fixtures, links externos ou promessa de exatidão de projeções.
 - Central de agentes: protótipo validado e supervisionado; não é apresentada como sistema autônomo.
 - Gerador de documentos: ferramenta local implementada; nenhum registro real de cliente foi importado.
 - As fontes V03, V04, V08 e V09 deixam de alimentar o perfil e o assistente. Os projetos excluídos pelo usuário não reaparecem como cases anônimos.
@@ -50,9 +53,9 @@ O produto `vault-template` foi verificado diretamente no repositório **público
 
 ## Manutenção
 
-A fonte compartilhada é `src/cli/data/professional-profile.ts`. O perfil em português e inglês, os comandos profissionais e o assistente utilizam esses dados. O catálogo `src/cli/data/productionProjects.ts` inclui o produto vault-template, os dois cases recentes e os projetos anteriores. Links são opcionais: um resumo técnico não autoriza divulgar repositório privado ou painel operacional. As contagens são calculadas. A seleção e as pendências estão em [Revisão dos projetos recentes](recent-projects-publication-review.md).
+A fonte compartilhada é `src/cli/data/professional-profile.ts`. O perfil em português e inglês, os comandos profissionais e o assistente utilizam esses dados. O catálogo `src/cli/data/productionProjects.ts` inclui vault-template, Rendller, Treino IA, Classes Points e os projetos anteriores. Links são opcionais: um resumo técnico não autoriza divulgar repositório privado ou painel operacional. As contagens são calculadas. A seleção e as pendências estão em [Revisão dos projetos recentes](recent-projects-publication-review.md).
 
-Rendller permanece fora do catálogo até uma revisão separada de privacidade. Relatórios privados de auditoria ficam na pasta ignorada `tmp/`, separados dos arquivos destinados à publicação e do contexto do assistente.
+Rendller integra o catálogo como case técnico, com links externos omitidos enquanto a revisão separada de privacidade estiver pendente. Relatórios privados de auditoria ficam na pasta ignorada `tmp/`, separados dos arquivos destinados à publicação e do contexto do assistente. O assistente reconhece as grafias Rendller e Rendler e recusa pedidos de registros financeiros pessoais.
 
 O assistente recebe apenas o contexto curado, nunca as notas brutas. Perguntas sobre dados privados são recusadas antes de qualquer chamada externa. Sem `GOOGLE_API_KEY` e `GOOGLE_MODEL`, ou em caso de indisponibilidade do provedor, respostas locais continuam disponíveis a partir da base profissional. Não há segredo ou valor de configuração neste documento.
 

@@ -18,6 +18,20 @@ const caseStudies: Record<string, Record<ProfileLanguage, CaseStudy>> = {
       nextStep: 'Copiar o repositório e configurar com um agente que tenha ferramentas de acesso a arquivos e instruções de projeto habilitadas.',
     },
   },
+  'Rendller': {
+    en: {
+      problem: 'Organizing fixed-income investment lots, liquidity and maturities while comparing scenarios with explicit assumptions.',
+      contribution: 'Full-stack development of the calculation engine, dashboards, simulator, local storage and synchronization workflows.',
+      decisions: ['Domain calculations are separated from the React interface and covered by source-project tests.', 'Public CDI history and a holiday calendar support business-day calculations; projected values remain estimates.', 'Browser persistence and JSON backups support local operation, with optional encrypted synchronization.'],
+      nextStep: 'Prepare an isolated demonstration with fictional records and revalidate synchronization between devices.',
+    },
+    'pt-BR': {
+      problem: 'Organizar lotes de renda fixa, liquidez e vencimentos e comparar cenários com premissas explícitas.',
+      contribution: 'Desenvolvimento full stack do motor de cálculo, painéis, simulador, armazenamento local e fluxos de sincronização.',
+      decisions: ['Cálculos de domínio ficam separados da interface React e têm testes no projeto de origem.', 'Histórico público do CDI e calendário de feriados apoiam os cálculos em dias úteis; valores projetados continuam sendo estimativas.', 'Persistência no navegador e backup JSON permitem operação local, com sincronização cifrada opcional.'],
+      nextStep: 'Preparar uma demonstração isolada com registros fictícios e revalidar a sincronização entre aparelhos.',
+    },
+  },
   'Treino IA': {
     en: {
       problem: 'Planning workouts and keeping session records available through connectivity changes.',
