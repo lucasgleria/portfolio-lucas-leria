@@ -199,11 +199,11 @@ const portugueseProjects: Record<
       'Sincronização cifrada opcional com acesso por conta no Supabase',
     ],
     results: [
-      'Publicação no Netlify documentada no README do projeto',
+      'Aplicação web publicada no Netlify',
       'Testes de cálculo, migração e sincronização disponíveis no projeto de origem',
     ],
     publicationNote:
-      'Case técnico de uma aplicação publicada. Projeções são estimativas; esta apresentação não contém registros financeiros reais. Os fluxos atuais da versão hospedada não foram revalidados.',
+      'Aplicação web publicada para acompanhar renda fixa e simular cenários. Valores projetados são estimativas.',
   },
   'Treino IA': {
     description:

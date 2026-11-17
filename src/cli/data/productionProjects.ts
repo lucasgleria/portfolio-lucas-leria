@@ -70,8 +70,11 @@ export interface ProductionProject {
       ],
       highlights: ['Calculation rules separated from the React interface', 'Local operation with optional cloud synchronization'],
       challenges: ['Separating realized returns from estimates', 'Preserving local records during migration and synchronization'],
-      results: ['Netlify deployment documented in the project README', 'Calculation, migration and synchronization tests available in the source project'],
-      publicationNote: 'Technical case of a published application. Projections are estimates; this presentation contains no real financial records. The current hosted workflows were not revalidated.',
+      results: ['Web application published on Netlify', 'Calculation, migration and synchronization tests available in the source project'],
+      publicationNote: 'Published web application for fixed-income tracking and scenario simulation. Projected values are estimates.',
+      link: 'https://github.com/lucasgleria/Rendller',
+      demo: 'https://rendller.netlify.app/',
+      documentation: 'https://github.com/lucasgleria/Rendller#readme',
     },
     {
       name: 'Treino IA',

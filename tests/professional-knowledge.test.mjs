@@ -126,20 +126,20 @@ test('public catalog and assistant context exclude rejected client cases and rea
   assert.deepEqual(recent.map(project => project.name), ['vault-template', 'Rendller', 'Treino IA', 'Classes Points'])
   assert.equal(recent.find(project => project.name === 'Treino IA').status, 'Published')
   assert.equal(recent.find(project => project.name === 'Classes Points').status, 'Documented use')
-  for (const project of recent.filter(project => project.name !== 'vault-template')) {
+  for (const project of recent.filter(project => ['Treino IA', 'Classes Points'].includes(project.name))) {
     assert.equal(project.demo, undefined, 'No private application or teacher-panel demo')
     assert.equal(project.link, undefined, 'No unreviewed code promotion')
     assert.equal(project.documentation, undefined, 'No raw vault notes')
   }
 })
 
-test('Rendller is a bilingual technical case without repository links or personal investment records', () => {
+test('Rendller is a bilingual published application with public links and no personal investment records', () => {
   const project = productionProjects.find(project => project.name === 'Rendller')
   assert.equal(project.category, 'web')
   assert.equal(project.status, 'Published')
-  assert.equal(project.link, undefined)
-  assert.equal(project.demo, undefined)
-  assert.equal(project.documentation, undefined)
+  assert.equal(project.link, 'https://github.com/lucasgleria/Rendller')
+  assert.equal(project.demo, 'https://rendller.netlify.app/')
+  assert.equal(project.documentation, 'https://github.com/lucasgleria/Rendller#readme')
   const { getProjectContent } = load('src/components/portfolio/content.ts')
   const { getCaseStudy } = load('src/cli/data/case-studies.ts')
   const { ProjectCard } = load('src/components/portfolio/ProjectCard.tsx')
@@ -148,7 +148,8 @@ test('Rendller is a bilingual technical case without repository links or persona
     assert.match(getProjectContent(project, language).description, language === 'en' ? /fixed-income/ : /renda fixa/)
     const html = renderToStaticMarkup(React.createElement(ProjectCard, { project, language, index: 1 }))
     assert.ok(html.includes(`/projects/${project.seo}?lang=${language}`))
-    assert.doesNotMatch(html, /href="https?:|R\$|carteiraReal/)
+    assert.ok(html.includes(`href="${project.demo}"`))
+    assert.doesNotMatch(html, /R\$|carteiraReal/)
     for (const name of ['Rendller', 'Rendler']) {
       assert.match(knowledge.answerProfessionalQuestion(name, language), /sincroniza|synchronization/)
       assert.match(knowledge.answerProfessionalQuestion(`${name} stack`, language), /React 19.*TypeScript.*Supabase/)
@@ -172,7 +173,7 @@ test('recent project cards show honest localized statuses and omit unavailable e
   }
   assert.equal(getProjectStatus(productionProjects.find(project => project.name === 'Treino IA'), 'pt-BR'), 'Publicado')
   assert.equal(getProjectStatus(productionProjects.find(project => project.name === 'Classes Points'), 'pt-BR'), 'Uso documentado')
-  const legacyDemo = productionProjects.find(project => project.demo)
+  const legacyDemo = productionProjects.find(project => project.year < 2026 && project.demo)
   const html = renderToStaticMarkup(React.createElement(ProjectCard, { project: legacyDemo, language: 'en', index: 2 }))
   assert.ok(html.includes(`href="${legacyDemo.demo}"`), 'Existing public demo remains available')
 })

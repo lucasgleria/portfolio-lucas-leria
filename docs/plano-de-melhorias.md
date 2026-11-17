@@ -169,7 +169,7 @@ P0: corrigir antes de uma nova publicação. P1: confiabilidade e jornada princi
 
 - [ ] Manter o produto público vault-template separado do vault privado.
 - [ ] Preservar a exclusão dos trabalhos da Ricco, incluindo versões anônimas.
-- [ ] Preservar a inclusão do Rendller como case técnico solicitada em 17/11/2026, sem registros financeiros. Links externos dependem de revisão separada de privacidade; não copiar evidências privadas para o portfólio ou seu plano.
+- [ ] Preservar a inclusão normal do Rendller e seus links públicos, autorizada pelo proprietário em 17/11/2026, sem importar registros financeiros ou evidências privadas de auditoria.
 - [ ] Usar somente informações profissionais verificáveis e materiais de demonstração sanitizados.
 - [ ] Diferenciar produto publicado, publicação documentada, uso documentado, ferramenta local e protótipo.
 - [ ] Preservar resposta local do assistente e os testes atuais de privacidade.
@@ -198,4 +198,4 @@ Os diagnósticos e as referências de linhas acima descrevem a revisão inicial,
 | M12 | Implementado e verificado no CI | 16 cenários Playwright aprovados em desktop/celular, além de 19 testes de base/API/renderização. Corrigido o retorno de foco ao campo do Terminal após fechar os diálogos. |
 | M13 | Implementado e verificado no CI | README, Node, exemplo de configuração, scripts e tokens compartilhados revisados; instalação limpa completa aprovada. |
 
-Os trabalhos excluídos pelo usuário permanecem fora da seleção. Rendller foi acrescentado em 17/11/2026 como case técnico, sem registros financeiros ou links externos. A [validação da entrega anterior](https://github.com/lucasgleria/portfolio-lucas-leria/actions/runs/43696484370), conferida em 17/11/2026, aprovou instalação limpa, `release:check` e auditoria com zero vulnerabilidades nas dependências de produção. PostCSS 8.5.33 e Sharp 0.35.5 são fixados por overrides; seis ocorrências moderadas nas dependências de desenvolvimento permanecem como manutenção separada.
+Os trabalhos excluídos pelo usuário permanecem fora da seleção. Rendller foi acrescentado em 17/11/2026 e seus links de produção, repositório e documentação foram autorizados pelo proprietário, sem importar registros financeiros. A [validação da entrega anterior](https://github.com/lucasgleria/portfolio-lucas-leria/actions/runs/43696484370), conferida em 17/11/2026, aprovou instalação limpa, `release:check` e auditoria com zero vulnerabilidades nas dependências de produção. PostCSS 8.5.33 e Sharp 0.35.5 são fixados por overrides; seis ocorrências moderadas nas dependências de desenvolvimento permanecem como manutenção separada.

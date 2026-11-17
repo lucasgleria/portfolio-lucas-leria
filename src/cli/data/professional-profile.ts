@@ -94,12 +94,12 @@ export const professionalProfile = {
       id: 'rendller',
       title: { en: 'Rendller', 'pt-BR': 'Rendller' },
       status: {
-        en: 'Published implementation documented; current production not revalidated',
-        'pt-BR': 'Implementação publicada documentada; produção atual não revalidada',
+        en: 'Published web application on Netlify',
+        'pt-BR': 'Aplicação web publicada no Netlify',
       },
       summary: {
-        en: 'Fixed-income tracking and simulation application with a configurable calculation engine, liquidity and maturity views, local browser storage, backups and optional encrypted synchronization. This technical case includes no real financial records or external repository links.',
-        'pt-BR': 'Aplicação para controle e simulação de renda fixa, com motor de cálculo configurável, visões de liquidez e vencimentos, armazenamento no navegador, backups e sincronização cifrada opcional. O case técnico não inclui registros financeiros reais nem links externos para o repositório.',
+        en: 'Published fixed-income tracking and simulation application with a configurable calculation engine, liquidity and maturity views, local browser storage, backups and optional encrypted synchronization.',
+        'pt-BR': 'Aplicação publicada para controle e simulação de renda fixa, com motor de cálculo configurável, visões de liquidez e vencimentos, armazenamento no navegador, backups e sincronização cifrada opcional.',
       },
       technologies: ['React 19', 'TypeScript', 'Vite', 'Supabase', 'Netlify', 'Recharts', 'Web Crypto'],
       sourceIds: ['P03', 'P04'],
