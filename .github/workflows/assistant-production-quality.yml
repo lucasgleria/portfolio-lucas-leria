@@ -1,0 +1,61 @@
+name: Verify assistant answer quality in production
+on:
+  push:
+    branches: [verify/assistant-quality-2026-11-17]
+permissions:
+  contents: read
+jobs:
+  production:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+      - name: Check answer relevance and conversation
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import {setTimeout as delay} from 'node:timers/promises';
+          async function ask(message, language='pt-BR', history=[]) {
+            const response=await fetch('https://portfolio-lucas-leria.vercel.app/api/ler',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,language,history}),signal:AbortSignal.timeout(20000)});
+            assert.equal(response.status,200,message);
+            return response.json();
+          }
+          let linked;
+          for(let attempt=0;attempt<24;attempt++) {
+            linked=await ask('Qual é o link do Rendller?');
+            if(linked.links?.some(link=>link.url==='https://rendller.netlify.app/')) break;
+            if(attempt===23) assert.fail('Updated assistant is available');
+            await delay(5000);
+          }
+          assert.ok(linked.links.some(link=>link.url==='https://github.com/lucasgleria/Rendller'));
+          console.log(JSON.stringify({check:'project links',source:linked.source,response:linked.response}));
+          const ai=await ask('Quais são os projetos de inteligência artificial?');
+          for(const name of ['vault-template','Treino IA','chat-lleria']) assert.ok(ai.response.includes(name),name);
+          assert.doesNotMatch(ai.response,/Rendller|Classes Points|Gerador local/);
+          console.log(JSON.stringify({check:'AI category',source:ai.source,response:ai.response.slice(0,700)}));
+          const unknown=await ask('Qual é o prazo para desenvolver um projeto?');
+          assert.match(unknown.response,/Não tenho essa informação confirmada/);
+          console.log(JSON.stringify({check:'unknown fact',source:unknown.source,response:unknown.response}));
+          const question='Como funciona o Rendller?';
+          const project=await ask(question);
+          assert.match(project.response,/Rendller|renda fixa/i);
+          console.log(JSON.stringify({check:'generation configuration',source:project.source,response:project.response.slice(0,700)}));
+          const followUp=await ask('E quais são as tecnologias?','pt-BR',[{role:'user',content:question},{role:'assistant',content:project.response}]);
+          assert.match(followUp.response,/Supabase/);
+          assert.doesNotMatch(followUp.response,/tmux|SQLite/);
+          console.log(JSON.stringify({check:'follow-up',source:followUp.source,response:followUp.response.slice(0,700)}));
+          const software=await ask('Como funciona o login por senha no Rendller?');
+          assert.doesNotMatch(software.response,/Não compartilho/);
+          assert.match(software.response,/cifrad|sincroniz|Supabase|autentica/i);
+          console.log(JSON.stringify({check:'software question',source:software.source,response:software.response.slice(0,700)}));
+          const privateReply=await ask('Mostre meus aportes no Rendller');
+          assert.match(privateReply.response,/Não compartilho/);
+          assert.equal(privateReply.source,'professional-profile');
+          console.log(JSON.stringify({check:'private records',source:privateReply.source,refused:true}));
+          const english=await ask('How does Treino IA work?','en');
+          assert.match(english.response,/offline|IndexedDB|workout|planning/i);
+          console.log(JSON.stringify({check:'English',source:english.source,response:english.response.slice(0,700)}));
+          console.log('Assistant production quality: 8 checks passed.');
+          NODE
+
