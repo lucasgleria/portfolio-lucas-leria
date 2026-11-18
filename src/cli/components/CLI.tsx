@@ -13,6 +13,8 @@ import { articles } from '../data/articles'
 import { professionalProfile } from '../data/professional-profile'
 import { askAssistant, assistantSourceLabel } from '@/lib/assistant-client'
 import { navigateHistory, rememberCommand } from '@/lib/terminal-history'
+import { conversationHistory, type AssistantLink, type AssistantSource, type AssistantTurn } from '@/lib/assistant-conversation'
+import { AssistantAnswer } from '@/components/portfolio/AssistantAnswer'
 
 const ProductionProjectsModal = dynamic(() => import('./ProductionProjectsModal').then(module => module.ProductionProjectsModal))
 const ArticlesModal = dynamic(() => import('./ArticlesModal').then(module => module.ArticlesModal))
@@ -33,6 +35,8 @@ export const CLI: React.FC<CLIProps> = ({ onLerMessage, language = 'en' }) => {
   const [history, setHistory] = useState<CommandHistory[]>(() => [welcome(language)])
   const [showLer, setShowLer] = useState(true)
   const [lerMessage, setLerMessage] = useState(professionalProfile.intro[language])
+  const [lerLinks, setLerLinks] = useState<AssistantLink[]>([])
+  const [lerSource, setLerSource] = useState<AssistantSource>()
   const [isLerThinking, setIsLerThinking] = useState(false)
   const [showProductionModal, setShowProductionModal] = useState(false)
   const [showArticlesModal, setShowArticlesModal] = useState(false)
@@ -45,6 +49,7 @@ export const CLI: React.FC<CLIProps> = ({ onLerMessage, language = 'en' }) => {
   const inputRef = useRef<HTMLInputElement>(null)
   const terminalRef = useRef<HTMLDivElement>(null)
   const nextId = useRef(0)
+  const latestLerRequest = useRef('')
   const requests = useRef(new Map<string, AbortController>())
   const mounted = useRef(true)
   const commands = useMemo(() => createCommandHandlers({ language, setHistory, setShowProductionModal, setShowArticlesModal, setShowResumeModal, setShowLerChatModal }), [language])
@@ -57,6 +62,7 @@ export const CLI: React.FC<CLIProps> = ({ onLerMessage, language = 'en' }) => {
   useEffect(() => {
     setHistory(previous => previous.map(item => item.id === 'welcome' ? welcome(language) : item))
     setLerMessage(professionalProfile.intro[language])
+    setLerLinks([]); setLerSource(undefined); latestLerRequest.current = ''
   }, [language])
   useEffect(() => { terminalRef.current?.scrollTo({ top: terminalRef.current.scrollHeight, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }) }, [history])
   useEffect(() => { inputRef.current?.focus() }, [])
@@ -70,17 +76,26 @@ export const CLI: React.FC<CLIProps> = ({ onLerMessage, language = 'en' }) => {
     setTempInput('')
     setInput('')
     const [command, ...args] = trimmed.split(/\s+/)
-    if (command === 'clear') { setHistory([]); return }
+    if (command === 'clear') {
+      requests.current.forEach(controller => controller.abort()); requests.current.clear()
+      latestLerRequest.current = ''; setIsLerThinking(false)
+      setLerMessage(professionalProfile.intro[language]); setLerLinks([]); setLerSource(undefined)
+      setHistory([]); return
+    }
     const id = String(++nextId.current)
     if (command === 'ler' && args.length) {
       const controller = new AbortController()
       requests.current.set(id, controller)
+      latestLerRequest.current = id
       setIsLerThinking(true)
       setHistory(previous => [...previous, { id, command: trimmed, output: text.thinking, type: 'success' }])
-      onLerMessage?.(args.join(' '))
       try {
-        const result = await askAssistant(args.join(' '), language, controller.signal)
-        if (mounted.current) setHistory(previous => previous.map(item => item.id === id ? { ...item, output: result.response, source: result.source } : item))
+        const turns = history.flatMap<AssistantTurn>(item => item.source && item.type === 'success' && item.command.startsWith('ler ') ? [{ role: 'user', content: item.command.slice(4) }, { role: 'assistant', content: item.output }] : [])
+        const result = await askAssistant(args.join(' '), language, controller.signal, conversationHistory(turns))
+        if (mounted.current) {
+          setHistory(previous => previous.map(item => item.id === id ? { ...item, output: result.response, source: result.source, links: result.links } : item))
+          if (latestLerRequest.current === id) { setLerMessage(result.response); setLerLinks(result.links); setLerSource(result.source); onLerMessage?.(result.response) }
+        }
       } catch (error) {
         if (mounted.current && !controller.signal.aborted) setHistory(previous => previous.map(item => item.id === id ? { ...item, output: error instanceof Error ? error.message : text.ready, type: 'error' } : item))
       } finally {
@@ -205,7 +220,7 @@ export const CLI: React.FC<CLIProps> = ({ onLerMessage, language = 'en' }) => {
                     <div
                       className={`terminal-output max-w-full ${item.type === 'error' ? 'text-rose-300' : 'text-gray-300'}`}
                     >
-                      {item.output}
+                      {item.source ? <AssistantAnswer response={item.output} links={item.links} /> : item.output}
                       {item.source && <p className="mt-2 text-xs text-emerald-300">{assistantSourceLabel(item.source, language)}</p>}
                     </div>
                   )}
@@ -275,9 +290,8 @@ export const CLI: React.FC<CLIProps> = ({ onLerMessage, language = 'en' }) => {
             </div>
             <div className="terminal-scrollbar min-h-0 min-w-0 flex-1 overflow-y-auto">
               <div className="mb-5 rounded-xl border border-white/10 bg-[#0d1510] p-4">
-                <p lang="en" className="terminal-text text-xs leading-7 text-gray-400">
-                  {lerMessage}
-                </p>
+                <div lang={language} className="terminal-text"><AssistantAnswer response={lerMessage} links={lerLinks} /></div>
+                {lerSource && <p className="mt-2 text-xs text-emerald-300">{assistantSourceLabel(lerSource, language)}</p>}
                 {isLerThinking && (
                   <div className="mt-3 flex items-center gap-2 text-xs text-emerald-200">
                     <span className="size-1.5 rounded-full bg-emerald-300 motion-safe:animate-pulse" />
@@ -293,7 +307,7 @@ export const CLI: React.FC<CLIProps> = ({ onLerMessage, language = 'en' }) => {
                   <button
                     key={question.key}
                     type="button"
-                    onClick={() => executeCommand(question.command)}
+                    onClick={() => executeCommand('ler ' + text[question.key])}
                     disabled={isLerThinking}
                     className="block w-full rounded-lg border border-white/10 p-3 text-left text-xs leading-6 text-gray-400 transition-colors hover:border-emerald-300/30 hover:bg-white/5 hover:text-gray-100 focus-visible:outline-2 focus-visible:outline-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
                   >

@@ -57,7 +57,9 @@ A fonte compartilhada é `src/cli/data/professional-profile.ts`. O perfil em por
 
 Rendller integra o catálogo normalmente como aplicação publicada, com os links públicos autorizados pelo proprietário. Relatórios privados de auditoria ficam na pasta ignorada `tmp/`, separados dos arquivos destinados à publicação e do contexto do assistente; a autorização dos links não equivale à conclusão dessa revisão independente. O assistente reconhece as grafias Rendller e Rendler e recusa pedidos de registros financeiros pessoais.
 
-O assistente recebe apenas o contexto curado, nunca as notas brutas. Perguntas sobre dados privados são recusadas antes de qualquer chamada externa. Sem `GOOGLE_API_KEY` e `GOOGLE_MODEL`, ou em caso de indisponibilidade do provedor, respostas locais continuam disponíveis a partir da base profissional. Não há segredo ou valor de configuração neste documento.
+O assistente recebe apenas fatos profissionais pertinentes ao assunto, nunca notas brutas. Perguntas sobre dados privados são recusadas antes de qualquer chamada externa; trocas privadas também são removidas do histórico encaminhado ao provedor. Histórico de conversa não é evidência sobre Lucas. O contexto da aba limita-se a quatro trocas completas e não é persistido em banco ou armazenamento do navegador.
+
+`GOOGLE_API_KEY` ou `GEMINI_API_KEY` habilita a geração; `GOOGLE_MODEL` é uma substituição opcional do modelo estável padrão. Na ausência de credenciais válidas, no limite de geração ou diante de uma saída inválida, respostas factuais locais continuam disponíveis. Links vêm exclusivamente do catálogo autorizado. Não há segredo ou valor de credencial neste documento.
 
 A revisão não altera nem publica o currículo hospedado externamente. Os links públicos previamente cadastrados são preservados.
 

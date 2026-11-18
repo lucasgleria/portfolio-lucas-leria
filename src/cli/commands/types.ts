@@ -1,6 +1,9 @@
+import type { AssistantLink } from '@/lib/assistant-conversation'
+
 export interface CommandHistory {
     id?: string
     source?: 'professional-profile' | 'professional-profile-ai'
+    links?: AssistantLink[]
     command: string
     output: string
     type: 'command' | 'output' | 'error' | 'success'

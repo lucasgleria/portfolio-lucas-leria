@@ -42,14 +42,20 @@ No Terminal, `help` lista os comandos. Os nomes continuam em inglês, com aprese
 
 ## Assistente Ler
 
-O assistente funciona **sem credenciais**, com respostas a partir da base profissional revisada. Para habilitar geração externa, copie `.env.example` para `.env.local` e configure os dois campos opcionais:
+O assistente responde sobre o catálogo e a base profissional revisada, com links públicos e continuidade entre perguntas. Ele diferencia categorias, projetos publicados e usos documentados; quando uma informação não está registrada, informa a limitação em vez de repetir a biografia.
+
+Funciona **sem credenciais**. Para habilitar geração externa, configure `GOOGLE_API_KEY` no servidor (ou `GEMINI_API_KEY`). `GOOGLE_MODEL` é opcional; o padrão é `gemini-3.1-flash-lite`, revisto na [documentação oficial](https://aistudio.google.com/docs/models/gemini-3.1-flash-lite). Localmente, copie `.env.example` para `.env.local`; no Vercel, configure as variáveis do ambiente de produção e publique novamente:
 
 ```dotenv
 GOOGLE_API_KEY=
-GOOGLE_MODEL=
+GOOGLE_MODEL=gemini-3.1-flash-lite
 ```
 
-Não inclua segredos no Git. A interface informa se a resposta é local ou gerada com IA. Perguntas privadas são recusadas antes de chamar o provedor. O limite é de 2000 caracteres; o servidor limita a geração a 8 segundos e o cliente espera no máximo 12 segundos. Erros do provedor usam a resposta local.
+Não inclua segredos no Git. A interface identifica a resposta local ou gerada com IA. O servidor usa a API REST do Gemini, com fatos selecionados para a pergunta e saída JSON com referências a esses fatos. URLs de navegação sempre vêm do catálogo, e respostas inválidas, com referências inexistentes ou números não documentados usam a resposta factual local.
+
+O histórico permanece na memória da aba: até quatro trocas completas, limitadas a 12.000 caracteres. Perguntas privadas e suas respostas são retiradas antes da geração externa; o histórico não é tratado como fonte de fatos. Ações **Nova conversa** no chat e `clear` no Terminal reiniciam esse contexto. Pedidos sobre funcionalidades de login, celular e sincronização continuam permitidos; pedidos de registros privados são recusados.
+
+O limite por pergunta é de 2000 caracteres; o servidor limita a geração a 8 segundos e o cliente espera no máximo 12 segundos. Sem chave, com limite de geração atingido ou com falha do provedor, a resposta usa o catálogo local. A disponibilidade de uma chave e de acesso ao modelo precisa ser conferida no ambiente de hospedagem.
 
 Há um orçamento de 12 gerações externas por minuto **por processo de servidor**, sem confiar em IPs fornecidos pelo cliente. Para hospedar várias instâncias, substituir esse orçamento por controle compartilhado ou do provedor antes de prometer uma cota global. O perfil local não consome esse orçamento.
 

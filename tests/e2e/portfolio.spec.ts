@@ -79,7 +79,7 @@ test('Terminal project dialog and nested details return focus to the command inp
   }
 })
 
-test('assistant receives the selected locale and identifies a local answer', async ({ page }) => {
+test('assistant answers the selected project, remembers follow-ups and starts a fresh conversation', async ({ page }) => {
   await page.goto('/terminal?lang=pt-BR')
   await runCommand(page, 'lerchat')
   const dialog = page.getByRole('dialog')
@@ -87,8 +87,35 @@ test('assistant receives the selected locale and identifies a local answer', asy
   const request = page.waitForRequest(request => request.url().endsWith('/api/ler'))
   await dialog.getByRole('button', { name: 'Enviar', exact: true }).click()
   expect((await request).postDataJSON().language).toBe('pt-BR')
-  await expect(dialog.getByRole('log')).toContainText('Template público')
+  await expect(dialog.getByRole('log')).toContainText('Vault reutilizável')
   await expect(dialog.getByText('Base profissional local', { exact: true })).toBeVisible()
+  const followUp = page.waitForRequest(request => request.url().endsWith('/api/ler'))
+  await dialog.getByRole('button', { name: 'Quais são as tecnologias?', exact: true }).click()
+  const body = (await followUp).postDataJSON()
+  expect(body.history).toHaveLength(2)
+  expect(body.history[0]).toEqual({ role: 'user', content: 'vault-template' })
+  await expect(dialog.getByRole('log')).toContainText('JSON Schema')
+  await expect(dialog.getByRole('log')).not.toContainText('Supabase')
+  await dialog.getByRole('button', { name: 'Nova conversa', exact: true }).click()
+  await expect(dialog.getByRole('log')).not.toContainText('JSON Schema')
+  await dialog.getByRole('textbox', { name: 'Sua pergunta' }).fill('Qual é o link do Rendller?')
+  const freshRequest = page.waitForRequest(request => request.url().endsWith('/api/ler'))
+  await dialog.getByRole('button', { name: 'Enviar', exact: true }).click()
+  expect((await freshRequest).postDataJSON().history).toEqual([])
+  await expect(dialog.getByRole('link', { name: 'Abrir aplicação', exact: true })).toHaveAttribute('href', 'https://rendller.netlify.app/')
+  await expect(dialog.getByRole('link', { name: 'Código-fonte', exact: true })).toHaveAttribute('href', 'https://github.com/lucasgleria/Rendller')
+})
+
+test('Terminal quick questions use Portuguese and update the assistant with the answer', async ({ page }) => {
+  await page.goto('/terminal?lang=pt-BR')
+  const request = page.waitForRequest(request => request.url().endsWith('/api/ler'))
+  await page.getByRole('button', { name: 'Mostre os projetos de IA', exact: true }).click()
+  expect((await request).postDataJSON().message).toBe('Mostre os projetos de IA')
+  const assistant = page.getByRole('complementary', { name: 'Assistente Ler', exact: true })
+  await expect(assistant).toContainText('vault-template')
+  await expect(assistant).toContainText('chat-lleria')
+  await expect(assistant).not.toContainText('Rendller')
+  await expect(assistant.getByText('Base profissional local', { exact: true })).toBeVisible()
 })
 
 test('chat recovers after an HTTP rate-limit response', async ({ page }) => {

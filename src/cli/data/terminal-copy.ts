@@ -46,8 +46,8 @@ export const terminalCopy = {
 } as const
 
 export const quickQuestions = [
-  { key: 'background', command: "ler Tell me about Lucas's background" },
-  { key: 'skills', command: "ler What are Lucas's main skills?" },
-  { key: 'projects', command: 'ler Show me his AI projects' },
-  { key: 'contact', command: 'ler How can I contact Lucas?' },
+  { key: 'background' },
+  { key: 'skills' },
+  { key: 'projects' },
+  { key: 'contact' },
 ] as const

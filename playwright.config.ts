@@ -15,7 +15,7 @@ export default defineConfig({
     command: 'npm run start -- --hostname 127.0.0.1',
     url: 'http://127.0.0.1:3000',
     reuseExistingServer: !process.env.CI,
-    env: { GOOGLE_API_KEY: '', GOOGLE_MODEL: '', SITE_URL: 'http://127.0.0.1:3000' },
+    env: { GOOGLE_API_KEY: '', GEMINI_API_KEY: '', GOOGLE_MODEL: '', SITE_URL: 'http://127.0.0.1:3000' },
     timeout: 30000,
   },
 })
