@@ -1,0 +1,23 @@
+name: Diagnose portfolio assistant responses
+on:
+  push:
+    branches: [verify/assistant-baseline-2026-11-17]
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+      - name: Probe professional questions
+        run: |
+          node --input-type=module <<'NODE'
+          for (const message of ['Qual é o link do Rendller?', 'Quais são os projetos de inteligência artificial?', 'Qual é o prazo para desenvolver um projeto?']) {
+            const response = await fetch('https://portfolio-lucas-leria.vercel.app/api/ler', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message,language:'pt-BR'}), signal:AbortSignal.timeout(20000)});
+            const data = await response.json();
+            console.log(JSON.stringify({question:message,status:response.status,source:data.source,response:data.response?.slice(0,700)}));
+          }
+          NODE
+
